@@ -7,9 +7,10 @@
 - [x] Estructura inicial de carpetas
 
 ## 2. Desarrollo JS: Autenticación y Core
-- [ ] **Login**: Implementar login contra Json Server
+- [x] **Login**: Implementar login contra Json Server
+- [x] **Registro**: Creación de usuarios en la base de datos
+- [x] **Tokens**: Simulación de sesión persistente (LocalStorage)
 - [ ] **Seguridad**: Protección básica en login/pedidos (anti-bot)
-- [ ] **Tokens**: Simulación de JWT o manejo de sesión
 
 ## 3. Desarrollo JS: Catálogo de Productos
 - [x] **Listado**: Mostrar productos desde la API externa
@@ -23,8 +24,9 @@
 - [ ] **Detalle**: Vista detallada del producto al seleccionar
 
 ## 4. Desarrollo JS: Carrito de Compra
-- [ ] **Añadir**: Agregar productos al carrito
-- [ ] **Visualizar**: Ver contenido completo del carrito
+- [/] **Añadir**: Agregar productos al carrito (Boton funcional)
+- [ ] **Visualizar**: Ver contenido completo del carrito (Modal o Página)
+- [x] **Badge**: Contador dinámico sobre el icono del carrito
 - [ ] **Persistencia**: Guardar carrito en LocalStorage (1 pto)
 - [ ] **Cantidades**: Manejar incrementos de cantidad (0.5 pto)
 - [ ] **Edición**: Modificar unidades o borrar ítems (0.5 pto)
@@ -40,8 +42,8 @@
     - [x] Botones estilizados (primary, outline)
     - [x] Cards de productos con hover
     - [x] Sistema de Grid responsive
-    - [ ] Formularios y tablas estilizados
-    - [ ] Galería de imágenes (Grid irregular)
+    - [x] Formularios estilizados (Login/Register)
+    - [x] Galería de imágenes (Grid irregular dinámico)
 - [x] **Extras**:
     - [ ] Favicon
     - [x] 4 Animaciones/Efectos:
