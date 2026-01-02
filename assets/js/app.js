@@ -1,112 +1,124 @@
 /**
- * Tienda Online "Sabor Navideño" - Mi Código Core
+ * =========================================================================
+ * 🎄 PROYECTO: SABOR NAVIDEÑO - CÓDIGO CORE (app.js) 🎄
+ * =========================================================================
  * 
- * ¡Hola! Este es el archivo donde he programado toda la magia de la tienda.
- * He organizado todo por secciones para que sea fácil de leer y entender.
+ * ¡Hola! He programado este archivo para que sea el motor de toda mi tienda. 
+ * He intentado que todo esté súper ordenado para que si en el futuro quiero 
+ * cambiar algo, no me vuelva loca buscando.
  * 
- * NOTA PARA EL FUTURO: Si quieres cambiar colores o estilos, mejor ve al CSS.
- * Aquí solo tocamos la "lógica": qué pasa cuando haces click, cómo se traen los datos, etc.
+ * He organizado el código en bloques lógicos. ¡Espero que me sirva de guía!
  */
 
 // ==========================================
-// 1. CONFIGURACIÓN Y APIS
+// 1. CONFIGURACIÓN Y DIRECCIONES (API)
 // ==========================================
 
-// URLs de la API de comida (TheMealDB) que usamos para el catálogo
+// Aquí guardo las direcciones de donde saco la comida. 
+// Si la API de TheMealDB cambia, solo tendría que tocar esto.
 const URL_BASE_API = 'https://www.themealdb.com/api/json/v1/1';
 const ENDPOINT_CATEGORIAS = '/categories.php';
 const ENDPOINT_FILTRO = '/filter.php?c=';
 const ENDPOINT_RANDOM = '/random.php';
 
-// URL de nuestro servidor local (json-server) para los usuarios
+// Dirección de mi "servidor" local para los usuarios.
+// ¡OJO!: Recuerda que tengo que tener el comando 'npm run server' activo.
 const URL_JSON_SERVER = 'http://localhost:3000';
 
 /**
- * CONFIGURACIÓN DE EMAILJS
- * Aquí es donde conectamos el botón de compra con tu correo real.
- * Si en el futuro cambias de cuenta de EmailJS, solo tienes que actualizar estos 3 IDs.
+ * DATOS DE EMAILJS
+ * Estas son las llaves para que los correos me lleguen a mí.
+ * TIP FUTURO: Si cambio de cuenta de correo, cambio estos IDs de aquí abajo.
  */
 const EMAILJS_PUBLIC_KEY = 'IAQlDtLB8I4gvNOSC';
 const EMAILJS_SERVICE_ID = 'service_h6gqoor';
 const EMAILJS_TEMPLATE_ID = 'template_nzh1gkb';
 
 // ==========================================
-// 2. GESTIÓN DEL ESTADO (La "memoria" de la web)
+// 2. EL ESTADO DE LA WEB (La Memoria)
 // ==========================================
 
+// He creado este objeto 'estado' para que la web "sepa" en todo momento qué está pasando.
 const estado = {
-    usuario: null,           // Guardamos quién ha entrado (nombre, email, etc.)
-    categorias: [],          // Lista de categorías que nos da la API (Seafood, Dessert...)
-    todosLosProductos: [],   // Todos los platos de la categoría seleccionada
-    productosVisibles: [],   // Los que se están viendo ahora mismo en pantalla
-    carrito: JSON.parse(localStorage.getItem('carrito')) || [], // El carrito se guarda aunque cierres la pestaña
-    captchaEsperado: 0,      // La respuesta correcta de la suma del login
-    categoriaActual: 'all',  // Qué estamos filtrando ahora
-    cargando: false,         // Para evitar que se pida mil veces lo mismo a la vez
-    indiceActual: 0,         // Para saber por qué producto vamos cargando (paginación)
-    itemsIniciales: 6,       // Cuántos platos salen al principio
-    itemsPorPagina: 3,       // Cuántos más se cargan al hacer scroll o dar al botón
-    modoBoton: false,        // En móvil usamos botón "Cargar más", en PC scroll infinito
+    usuario: null,           // Aquí guardaré quién ha hecho login.
+    categorias: [],          // Aquí guardo las categorías (Pescado, Postres...).
+    todosLosProductos: [],   // Todos los platos que he bajado de la red.
+    productosVisibles: [],   // Solo los que estoy enseñando ahora mismo.
+    carrito: JSON.parse(localStorage.getItem('carrito')) || [], // Recupero el carrito si cerré la pestaña.
+    captchaEsperado: 0,      // El resultado de la suma del login.
+    categoriaActual: 'all',  // Qué filtro tengo puesto.
+    cargando: false,         // Para que no se vuelva loco cargando mil cosas a la vez.
+    indiceActual: 0,         // Para saber cuántos platos llevo cargados.
+    itemsIniciales: 6,       // Empiezo enseñando 6 platos.
+    itemsPorPagina: 3,       // Al bajar o dar al botón, cargo 3 más.
+    modoBoton: false,        // Si es móvil, sale el botón de "Cargar más".
 };
 
-// Aquí guardaremos las referencias a las etiquetas HTML para no tener que buscarlas todo el rato
+// Objeto vacío que llenaré con todas las "piezas" del HTML (IDs).
 let elementos = {};
 
 /**
- * Esta función es súper importante: captura todos los IDs del HTML 
- * para que podamos usarlos en JavaScript fácilmente.
+ * Función que "atrapa" todos los IDs de mi HTML. 
+ * La llamo al principio para tenerlo todo a mano.
  */
 function capturarElementos() {
     elementos = {
+        // Contenedores grandes
         app: document.getElementById('app'),
         badgeCarrito: document.querySelector('.cart-badge'),
         landing: document.getElementById('landing-page'),
         mainApp: document.getElementById('main-app'),
+
+        // Login y Registro
         userWelcome: document.getElementById('user-welcome'),
         loginForm: document.getElementById('login-form'),
         registerForm: document.getElementById('register-form'),
         logoutBtn: document.getElementById('logout-btn'),
+        captchaLabel: document.getElementById('captcha-label'),
+        captchaInput: document.getElementById('login-captcha'),
+
+        // Galería y Navegación
         galleryGrid: document.querySelector('.gallery__grid'),
         navToggle: document.getElementById('nav-toggle'),
         navMenu: document.getElementById('nav-menu'),
         navClose: document.getElementById('nav-close'),
-        modal: document.getElementById('product-modal'),
-        modalBody: document.getElementById('modal-body'),
-        modalClose: document.getElementById('modal-close'),
-        modalOverlay: document.getElementById('modal-overlay'),
-
-        // Secciones principales de la App
-        catalogView: document.getElementById('catalog-view'),
-        cartView: document.getElementById('cart-view'),
-
-        // Botones y enlaces de navegación
         logoNav: document.getElementById('logo-nav'),
         navHome: document.getElementById('nav-home'),
         navProducts: document.getElementById('nav-products'),
         cartBtn: document.getElementById('cart-btn'),
         heroCta: document.getElementById('hero-cta'),
-        captchaLabel: document.getElementById('captcha-label'),
-        captchaInput: document.getElementById('login-captcha'),
 
-        // Cosas de la vista del carrito
+        // Ventana de detalle (Modal)
+        modal: document.getElementById('product-modal'),
+        modalBody: document.getElementById('modal-body'),
+        modalClose: document.getElementById('modal-close'),
+        modalOverlay: document.getElementById('modal-overlay'),
+
+        // Vistas de la App
+        catalogView: document.getElementById('catalog-view'),
+        cartView: document.getElementById('cart-view'),
+
+        // Carrito
         cartFullList: document.getElementById('cart-full-list'),
         summarySubtotal: document.getElementById('summary-subtotal'),
         summaryTotal: document.getElementById('summary-total'),
         checkoutFinalBtn: document.getElementById('checkout-final-btn'),
         continueShopping: document.getElementById('continue-shopping'),
+        sortSelect: document.getElementById('sort-select'),
     };
 }
 
 // ==========================================
-// 3. AUTENTICACIÓN (Login, Registro y Seguridad)
+// 3. SEGURIDAD Y ENTRADA (Auth)
 // ==========================================
 
 /**
- * Se ejecuta al abrir la web para ver si el usuario ya estaba logueado.
+ * Mira si ya estaba dentro antes de recargar. 
+ * Si encuentro mi sesión, entro directo al catálogo.
  */
 function inicializarAuth() {
     const sesion = localStorage.getItem('usuario_sesion');
-    configurarEventosAuth();
+    configurarEventosAuth(); // Activo los botones de los formularios.
 
     if (sesion) {
         estado.usuario = JSON.parse(sesion);
@@ -117,20 +129,45 @@ function inicializarAuth() {
 }
 
 /**
- * Genera una suma aleatoria para evitar que entren bots (el Captcha).
+ * CAPTCHA Navideño: Genero una suma aleatoria para evitar bots.
+ * TIP FUTURO: Si quiero que sea más difícil, puedo multiplicar los números en vez de sumar.
  */
 function generarCaptcha() {
     if (!elementos.captchaLabel) return;
-
     const num1 = Math.floor(Math.random() * 10) + 1;
     const num2 = Math.floor(Math.random() * 10) + 1;
     estado.captchaEsperado = num1 + num2;
-
     elementos.captchaLabel.textContent = `Pregunta de seguridad: ¿Cuánto es ${num1} + ${num2}?`;
 }
 
 /**
- * Maneja el envío del formulario de entrada.
+ * Configuro los botones de "Login" y "Registro" para que cambien de pestañas.
+ */
+function configurarEventosAuth() {
+    const tabs = document.querySelectorAll('.auth__tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const target = tab.dataset.target;
+            if (target === 'login') {
+                elementos.loginForm?.classList.remove('hidden');
+                elementos.registerForm?.classList.add('hidden');
+            } else {
+                elementos.loginForm?.classList.add('hidden');
+                elementos.registerForm?.classList.remove('hidden');
+            }
+        });
+    });
+
+    // Activo el botón de enviar
+    elementos.loginForm?.addEventListener('submit', manejarLogin);
+    elementos.registerForm?.addEventListener('submit', manejarRegistro);
+    elementos.logoutBtn?.addEventListener('click', manejarLogout);
+}
+
+/**
+ * Lógica al pulsar "Entrar". Compruebo captcha y busco al usuario en mi DB.
  */
 async function manejarLogin(e) {
     e.preventDefault();
@@ -139,7 +176,7 @@ async function manejarLogin(e) {
     const captchaValue = parseInt(elementos.captchaInput.value);
     const errorMsg = document.getElementById('login-error');
 
-    // Primero miramos si el captcha es correcto
+    // Valido el captcha primero
     if (captchaValue !== estado.captchaEsperado) {
         errorMsg.textContent = '¡Ups! La suma no es correcta. Inténtalo de nuevo.';
         errorMsg.classList.remove('hidden');
@@ -149,14 +186,12 @@ async function manejarLogin(e) {
     }
 
     try {
-        // Buscamos al usuario en nuestro "servidor" (db.json)
         const res = await fetch(`${URL_JSON_SERVER}/users?username=${username}&password=${password}`);
         const usuarios = await res.json();
 
         if (usuarios.length > 0) {
-            const usuario = usuarios[0];
-            estado.usuario = usuario;
-            localStorage.setItem('usuario_sesion', JSON.stringify(usuario));
+            estado.usuario = usuarios[0];
+            localStorage.setItem('usuario_sesion', JSON.stringify(estado.usuario));
             errorMsg.classList.add('hidden');
             cambiarVista('app');
             actualizarCarritoUI();
@@ -166,22 +201,68 @@ async function manejarLogin(e) {
             generarCaptcha();
         }
     } catch (error) {
-        console.error('Error en login:', error);
+        console.error('Error login:', error);
     }
 }
 
+/**
+ * Lógica de registro. Guardo los datos del nuevo usuario en db.json.
+ */
+async function manejarRegistro(e) {
+    e.preventDefault();
+    const formData = new FormData(elementos.registerForm);
+    const nuevoUsuario = {
+        nombre: formData.get('name'),
+        username: formData.get('username'),
+        email: formData.get('email'),
+        password: formData.get('password'),
+        rol: 'cliente'
+    };
+
+    try {
+        // Comprobar si el nombre ya está cogido
+        const checkRes = await fetch(`${URL_JSON_SERVER}/users?username=${nuevoUsuario.username}`);
+        const existe = await checkRes.json();
+        if (existe.length > 0) {
+            alert('Este nombre de usuario ya existe. ¡Prueba otro!');
+            return;
+        }
+
+        const res = await fetch(`${URL_JSON_SERVER}/users`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevoUsuario)
+        });
+
+        if (res.ok) {
+            alert('¡Cuenta creada con éxito! Ya puedes entrar.');
+            document.querySelector('[data-target="login"]').click(); // Le mando a la pestaña de entrar
+        }
+    } catch (error) {
+        console.error('Error registro:', error);
+    }
+}
+
+function manejarLogout() {
+    estado.usuario = null;
+    localStorage.removeItem('usuario_sesion');
+    if (elementos.app) elementos.app.innerHTML = ''; // Limpio el catálogo.
+    cambiarVista('landing');
+}
+
 // ==========================================
-// 4. GALERÍA ALEATORIA (Landing Page)
+// 4. LA GALERÍA ABSTRACTA (Portada)
 // ==========================================
 
 /**
- * Trae 10 platos al azar para la galería bonita de la portada.
+ * Traigo 10 platos de comida al azar para que la portada quede bonita.
+ * He configurado la galería para que tenga formas raras y rotaciones artísticas.
  */
 async function cargarGaleriaAleatoria() {
     if (!elementos.galleryGrid) return;
-    elementos.galleryGrid.innerHTML = '<div class="gallery__loading">Cargando inspiración...</div>';
+    elementos.galleryGrid.innerHTML = '<div class="gallery__loading">Cargando inspiración navideña...</div>';
 
-    // Pedimos 10 fotos a la vez para que carguen rápido
+    // Pido las 10 fotos a la vez para ir más rápido.
     const promesas = Array.from({ length: 10 }, () =>
         fetch(`${URL_BASE_API}${ENDPOINT_RANDOM}`).then(r => r.json())
     );
@@ -189,7 +270,6 @@ async function cargarGaleriaAleatoria() {
     try {
         const resultados = await Promise.all(promesas);
         elementos.galleryGrid.innerHTML = '';
-
         resultados.forEach((data, index) => {
             const meal = data.meals[0];
             const i = index + 1;
@@ -199,24 +279,22 @@ async function cargarGaleriaAleatoria() {
             elementos.galleryGrid.appendChild(item);
         });
     } catch (error) {
-        console.error('Error en galería:', error);
+        console.error('Error galeria:', error);
     }
 }
 
 // ==========================================
-// 5. NAVEGACIÓN Y VISTAS
+// 5. NAVEGACIÓN Y CAMBIO DE SECCIONES
 // ==========================================
 
 /**
- * Cambia entre la Landing (visitantes) y la App (usuarios registrados).
+ * Controla si se ve la portada (Landing) o la zona de compras (App).
  */
 function cambiarVista(vista) {
     capturarElementos();
-
     if (vista === 'app') {
         elementos.landing?.classList.add('hidden');
         elementos.mainApp?.classList.remove('hidden');
-
         setTimeout(() => {
             if (estado.usuario && elementos.userWelcome) {
                 elementos.userWelcome.innerHTML = `Hola, ${estado.usuario.nombre || estado.usuario.username}`;
@@ -232,7 +310,7 @@ function cambiarVista(vista) {
 }
 
 /**
- * Cambia entre Catálogo y Carrito dentro de la App Principal.
+ * Cambia entre el Catálogo de platos y el Carrito Completo.
  */
 function cambiarVistaApp(vista, destino = null) {
     if (vista === 'cart') {
@@ -243,8 +321,7 @@ function cambiarVistaApp(vista, destino = null) {
     } else {
         elementos.catalogView?.classList.remove('hidden');
         elementos.cartView?.classList.add('hidden');
-
-        // Si nos pasan un destino (ej: 'nuestros-platos'), hacemos scroll hasta allí
+        // Si quiero ir a una sección concreta (ej: Nuestros Platos)
         if (destino) {
             const el = document.getElementById(destino);
             setTimeout(() => el?.scrollIntoView({ behavior: 'smooth' }), 10);
@@ -254,284 +331,385 @@ function cambiarVistaApp(vista, destino = null) {
     }
 }
 
+/**
+ * Activo los botones del menú móvil, el logo, etc.
+ */
+function inyectarNavEventos() {
+    elementos.navToggle?.addEventListener('click', () => elementos.navMenu.classList.add('show-menu'));
+    elementos.navClose?.addEventListener('click', () => elementos.navMenu.classList.remove('show-menu'));
+    elementos.modalClose?.addEventListener('click', cerrarModal);
+    elementos.modalOverlay?.addEventListener('click', cerrarModal);
+
+    // Enlaces de la barra de navegación
+    elementos.logoNav?.addEventListener('click', (e) => { e.preventDefault(); cambiarVistaApp('catalog'); });
+    elementos.navHome?.addEventListener('click', (e) => { e.preventDefault(); cambiarVistaApp('catalog'); });
+    elementos.navProducts?.addEventListener('click', (e) => { e.preventDefault(); cambiarVistaApp('catalog', 'nuestros-platos'); });
+    elementos.cartBtn?.addEventListener('click', () => cambiarVistaApp('cart'));
+    elementos.heroCta?.addEventListener('click', (e) => { e.preventDefault(); cambiarVistaApp('catalog', 'nuestros-platos'); });
+    elementos.continueShopping?.addEventListener('click', () => cambiarVistaApp('catalog'));
+    elementos.checkoutFinalBtn?.addEventListener('click', simularCheckout);
+}
+
 // ==========================================
-// 6. CATÁLOGO Y PRODUCTOS (La chicha de la tienda)
+// 6. CATÁLOGO DE PRODUCTOS (Lógica de Ventas)
 // ==========================================
 
 /**
- * Carga los platos según la categoría elegida (Pescados, Postres, etc.)
+ * Cuando entro a la tienda, cargo las categorías y preparo los productos.
+ */
+async function cargarContenidoApp() {
+    actualizarConfiguracion();
+    try {
+        await obtenerCategorias();
+        await obtenerProductos('Seafood'); // Empiezo enseñando Mariscos que es muy navideño.
+        window.addEventListener('scroll', manejarScroll); // Activo el scroll infinito.
+        conectarFiltros();
+        conectarOrdenacion();
+        actualizarCarritoUI();
+    } catch (error) {
+        console.error('Error contenido app:', error);
+    }
+}
+
+/**
+ * Responsive: Si estoy en móvil cargo menos cosas que en PC.
+ * TIP FUTURO: Si añado pantallas intermedias, aquí añado más 'breakpoints'.
+ */
+function actualizarConfiguracion() {
+    const ancho = window.innerWidth;
+    if (ancho >= 968) {
+        estado.itemsIniciales = 6; estado.itemsPorPagina = 3; estado.modoBoton = false;
+    } else if (ancho >= 768) {
+        estado.itemsIniciales = 4; estado.itemsPorPagina = 2; estado.modoBoton = false;
+    } else {
+        estado.itemsIniciales = 3; estado.itemsPorPagina = 3; estado.modoBoton = true;
+    }
+}
+
+async function obtenerCategorias() {
+    try {
+        const res = await fetch(`${URL_BASE_API}${ENDPOINT_CATEGORIAS}`);
+        const datos = await res.json();
+        estado.categorias = datos.categories;
+    } catch (e) { console.error(e); }
+}
+
+/**
+ * Trae los platos de la categoría de la red.
+ * Si elijo "Todos", mezclo platos de varias categorías.
  */
 async function obtenerProductos(categoria) {
     estado.cargando = true;
     estado.indiceActual = 0;
     estado.todosLosProductos = [];
-
     if (elementos.app) elementos.app.innerHTML = '';
     eliminarBotonCargarMas();
 
     try {
         let listaFinal = [];
         if (categoria === 'all') {
-            // Si elegimos "Todos", mezclamos un poco de cada cosa
-            const categoriasTienda = ['Seafood', 'Pasta', 'Dessert'];
-            const promesas = categoriasTienda.map(cat =>
-                fetch(`${URL_BASE_API}${ENDPOINT_FILTRO}${cat}`).then(r => r.json())
-            );
+            const cats = ['Seafood', 'Pasta', 'Dessert']; // Estas son mis categorías favoritas.
+            const promesas = cats.map(c => fetch(`${URL_BASE_API}${ENDPOINT_FILTRO}${c}`).then(r => r.json()));
             const resultados = await Promise.all(promesas);
-            resultados.forEach(data => {
-                if (data.meals) listaFinal = [...listaFinal, ...data.meals];
-            });
+            resultados.forEach(d => { if (d.meals) listaFinal = [...listaFinal, ...d.meals]; });
         } else {
             const res = await fetch(`${URL_BASE_API}${ENDPOINT_FILTRO}${categoria}`);
             const datos = await res.json();
             listaFinal = datos.meals || [];
         }
-
         estado.todosLosProductos = listaFinal;
         cargarSiguienteBloque(estado.itemsIniciales);
-    } catch (error) {
-        console.error('Error al traer productos:', error);
-    } finally {
-        estado.cargando = false;
-    }
+    } catch (e) { console.error(e); } finally { estado.cargando = false; }
 }
 
 /**
- * Función para ir cargando los platos poco a poco (paginación).
+ * PAGINACIÓN: Va enseñando platos de 3 en 3 (o los que toque).
  */
 function cargarSiguienteBloque(cantidad) {
     if (estado.indiceActual >= estado.todosLosProductos.length) {
         eliminarBotonCargarMas();
         return;
     }
-
-    const siguienteIndice = estado.indiceActual + cantidad;
-    const nuevosProductos = estado.todosLosProductos.slice(estado.indiceActual, siguienteIndice);
-
-    estado.productosVisibles = [...estado.productosVisibles, ...nuevosProductos];
-    estado.indiceActual = siguienteIndice;
-
-    renderizarBloque(nuevosProductos);
-
-    // En móvil mostramos el botón manualmente
+    const nuevos = estado.todosLosProductos.slice(estado.indiceActual, estado.indiceActual + cantidad);
+    estado.indiceActual += cantidad;
+    renderizarBloque(nuevos);
     if (estado.modoBoton) gestionarBotonCargarMas();
 }
 
 /**
- * Dibuja las tarjetas (cards) de los platos en la pantalla.
+ * Dibuja el HTML de cada plato en la pantalla.
+ * He simulado el precio usando el ID del plato para que cada uno sea diferente.
  */
-function renderizarBloque(listaProductos) {
+function renderizarBloque(lista) {
     if (!elementos.app) return;
-
-    const htmlBloque = listaProductos.map(producto => `
-        <article class="card fade-in" onclick="abrirModal('${producto.idMeal}')">
-            <img src="${producto.strMealThumb}" alt="${producto.strMeal}" class="card__image">
+    const html = lista.map(p => `
+        <article class="card fade-in" onclick="abrirModal('${p.idMeal}')">
+            <img src="${p.strMealThumb}" alt="${p.strMeal}" class="card__image">
             <div class="card__data">
-                <h3 class="card__title">${producto.strMeal}</h3>
-                <span class="card__price">$${(producto.idMeal / 1000).toFixed(2)}</span>
-                <button class="btn btn--primary" onclick="event.stopPropagation(); agregarAlCarrito('${producto.idMeal}')">Añadir</button>
+                <h3 class="card__title">${p.strMeal}</h3>
+                <span class="card__price">$${(p.idMeal / 1000).toFixed(2)}</span>
+                <button class="btn btn--primary" onclick="event.stopPropagation(); agregarAlCarrito('${p.idMeal}')">Añadir</button>
             </div>
         </article>
     `).join('');
+    elementos.app.insertAdjacentHTML('beforeend', html);
+}
 
-    elementos.app.insertAdjacentHTML('beforeend', htmlBloque);
+function conectarFiltros() {
+    const botones = document.querySelectorAll('.filter-btn');
+    botones.forEach(btn => {
+        btn.addEventListener('click', () => {
+            botones.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            obtenerProductos(btn.dataset.category);
+        });
+    });
+}
+
+function conectarOrdenacion() {
+    elementos.sortSelect?.addEventListener('change', (e) => ordenarProductos(e.target.value));
+}
+
+/**
+ * Ordeno la lista en memoria para no tener que volver a llamar a la API.
+ */
+function ordenarProductos(criterio) {
+    if (!estado.todosLosProductos.length) return;
+    if (criterio === 'price-asc') estado.todosLosProductos.sort((a, b) => a.idMeal - b.idMeal);
+    else if (criterio === 'price-desc') estado.todosLosProductos.sort((a, b) => b.idMeal - a.idMeal);
+    else if (criterio === 'name-az') estado.todosLosProductos.sort((a, b) => a.strMeal.localeCompare(b.strMeal));
+
+    estado.indiceActual = 0;
+    if (elementos.app) elementos.app.innerHTML = '';
+    cargarSiguienteBloque(estado.itemsIniciales);
 }
 
 // ==========================================
-// 7. CARRITO DE COMPRA
+// 7. CARGA POR SCROLL E INFINITE LOAD
 // ==========================================
 
 /**
- * Añade un plato al carrito o sube su cantidad si ya estaba.
+ * Detecta cuando el usuario está llegando al final de la página.
  */
-function agregarAlCarrito(idProducto) {
-    const plato = estado.todosLosProductos.find(p => p.idMeal === idProducto);
-    if (!plato) return;
+function manejarScroll() {
+    // Si estoy usando el botón de móvil, ignoro el scroll.
+    if (estado.modoBoton || estado.cargando || estado.indiceActual >= estado.todosLosProductos.length) return;
 
-    const itemExistente = estado.carrito.find(item => item.idMeal === idProducto);
-
-    if (itemExistente) {
-        itemExistente.cantidad++;
-    } else {
-        estado.carrito.push({
-            ...plato,
-            cantidad: 1,
-            precio: parseFloat((plato.idMeal / 1000).toFixed(2))
-        });
+    const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+    // Si estoy a 100px del final, cargo el siguiente bloque.
+    if (scrollTop + clientHeight >= scrollHeight - 100) {
+        cargarSiguienteBloque(estado.itemsPorPagina);
     }
+}
+
+/**
+ * En móviles me gusta más poner un botón que scrollear infinitamente.
+ */
+function gestionarBotonCargarMas() {
+    eliminarBotonCargarMas();
+    if (estado.indiceActual < estado.todosLosProductos.length) {
+        const html = `<div class="load-more-container" style="width: 100%; display: flex; justify-content: center; margin-top: 2rem;">
+            <button id="btn-load-more" class="btn btn--outline">Cargar más productos</button>
+        </div>`;
+        elementos.app?.insertAdjacentHTML('afterend', html);
+        document.getElementById('btn-load-more')?.addEventListener('click', () => cargarSiguienteBloque(estado.itemsPorPagina));
+    }
+}
+
+function eliminarBotonCargarMas() {
+    document.querySelector('.load-more-container')?.remove();
+}
+
+// ==========================================
+// 8. CARRITO DE COMPRA
+// ==========================================
+
+/**
+ * Añado una unidad al carrito. Si ya está, solo subo el contador.
+ */
+function agregarAlCarrito(id) {
+    const plato = estado.todosLosProductos.find(p => p.idMeal === id);
+    if (!plato) return;
+    const item = estado.carrito.find(i => i.idMeal === id);
+    if (item) item.cantidad++;
+    else estado.carrito.push({ ...plato, cantidad: 1, precio: parseFloat((plato.idMeal / 1000).toFixed(2)) });
 
     guardarCarrito();
     actualizarCarritoUI();
-    if (elementos.cartView && !elementos.cartView.classList.contains('hidden')) renderizarCarrito();
+    // Si estoy viendo el carrito, lo redibujo para que se vea el cambio
+    if (!elementos.cartView.classList.contains('hidden')) renderizarCarrito();
 }
 
 /**
- * Guarda el carrito en el ordenador del usuario para que no se borre al recargar.
+ * LocalStorage: Guardo el carrito en el navegador.
  */
-function guardarCarrito() {
-    localStorage.setItem('carrito', JSON.stringify(estado.carrito));
-}
+function guardarCarrito() { localStorage.setItem('carrito', JSON.stringify(estado.carrito)); }
 
+/**
+ * Actualiza el numerito rojo que sale encima del carrito.
+ */
 function actualizarCarritoUI() {
     if (elementos.badgeCarrito) {
-        const totalItems = estado.carrito.reduce((acc, item) => acc + item.cantidad, 0);
-        elementos.badgeCarrito.textContent = totalItems;
+        elementos.badgeCarrito.textContent = estado.carrito.reduce((acc, i) => acc + i.cantidad, 0);
     }
 }
 
-// ==========================================
-// 8. CHECKOUT Y EMAIL (Finalizar Compra)
-// ==========================================
+/**
+ * Dibuja la lista de productos del carrito con sus fotos y botones de borrar.
+ */
+function renderizarCarrito() {
+    if (!elementos.cartFullList) return;
+    if (estado.carrito.length === 0) {
+        elementos.cartFullList.innerHTML = `<div class="cart-empty"><p>Tu carrito está vacío. ¡Vuelve a por algo rico!</p><button class="btn btn--primary" onclick="cambiarVistaApp('catalog')">Ir a Tienda</button></div>`;
+        elementos.summarySubtotal.textContent = '$0.00'; elementos.summaryTotal.textContent = '$0.00';
+        return;
+    }
+    let total = 0;
+    elementos.cartFullList.innerHTML = estado.carrito.map(item => {
+        total += item.precio * item.cantidad;
+        return `<div class="cart-item fade-in">
+            <img src="${item.strMealThumb}" alt="${item.strMeal}" class="cart-item__img">
+            <div class="cart-item__info"><h3 class="cart-item__title">${item.strMeal}</h3></div>
+            <div class="cart-item__price-box">
+                <span class="cart-item__price">$${item.precio.toFixed(2)}</span>
+                <div class="cart-item__qty-box">
+                    <button class="cart-item__btn" onclick="cambiarCantidad('${item.idMeal}', -1)">-</button>
+                    <span>${item.cantidad}</span>
+                    <button class="cart-item__btn" onclick="cambiarCantidad('${item.idMeal}', 1)">+</button>
+                </div>
+            </div>
+            <i class="fa-solid fa-trash-can cart-item__del" onclick="eliminarDelCarrito('${item.idMeal}')"></i>
+        </div>`;
+    }).join('');
+    elementos.summarySubtotal.textContent = `$${total.toFixed(2)}`;
+    elementos.summaryTotal.textContent = `$${total.toFixed(2)}`;
+}
+
+function eliminarDelCarrito(id) {
+    estado.carrito = estado.carrito.filter(i => i.idMeal !== id);
+    guardarCarrito(); actualizarCarritoUI(); renderizarCarrito();
+}
+
+function cambiarCantidad(id, delta) {
+    const item = estado.carrito.find(i => i.idMeal === id);
+    if (item) {
+        item.cantidad += delta;
+        if (item.cantidad <= 0) eliminarDelCarrito(id);
+        else { guardarCarrito(); actualizarCarritoUI(); renderizarCarrito(); }
+    }
+}
 
 /**
- * El botón final de compra. Usa EmailJS para mandar el ticket.
+ * EL MOMENTO FINAL: Enviar el email real con los datos de la compra.
  */
 async function simularCheckout() {
     if (estado.carrito.length === 0) return;
-
     const btn = elementos.checkoutFinalBtn;
-    const originalText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Procesando pedido... ❄️';
+    btn.disabled = true; btn.textContent = 'Procesando pedido... ❄️';
 
     const total = estado.carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-    const orderId = "SN-" + Math.floor(Math.random() * 100000);
+    const orderId = "SN-" + Math.floor(Math.random() * 100000); // Genero un código de pedido.
 
-    // Formateamos los productos para la tabla del email
-    const itemsParaEmail = estado.carrito.map(item => ({
-        image_url: item.strMealThumb,
-        name: item.strMeal,
-        units: item.cantidad,
-        price: item.precio.toFixed(2)
-    }));
-
+    // Mapeo los datos tal cual los espera mi plantilla de EmailJS.
     const templateParams = {
         order_id: orderId,
         email: estado.usuario.email,
-        orders: itemsParaEmail,
-        cost: {
-            shipping: "0.00",
-            tax: "0.00",
-            total: total.toFixed(2)
-        }
+        orders: estado.carrito.map(i => ({ image_url: i.strMealThumb, name: i.strMeal, units: i.cantidad, price: i.precio.toFixed(2) })),
+        cost: { shipping: "0.00", tax: "0.00", total: total.toFixed(2) }
     };
 
     try {
-        // Solo mandamos el mail si las llaves están puestas
         if (EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
             await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
         }
-
-        alert('¡Gracias por tu pedido! Te hemos enviado un correo de confirmación con el diseño navideño. 🎁🍗');
-
-        // Vaciamos todo tras el éxito
+        alert('¡Gracias por tu pedido! Te hemos enviado un correo de confirmación navideño.');
         estado.carrito = [];
         guardarCarrito();
         actualizarCarritoUI();
         cambiarVistaApp('catalog');
-
-    } catch (error) {
-        console.error('Error EmailJS:', error);
-        alert('Pedido registrado, pero no se pudo enviar el correo.');
-
-        estado.carrito = [];
+    } catch (e) {
+        console.error(e);
+        alert('Ha habido un pequeño error con el email, pero tu pedido está en camino.');
+        estado.carrito = []; // Limpio igual por buena experiencia de usuario.
         guardarCarrito();
         actualizarCarritoUI();
         cambiarVistaApp('catalog');
-    } finally {
+    }
+    finally {
         btn.disabled = false;
-        btn.textContent = originalText;
+        btn.textContent = 'Proceder al Pago';
     }
 }
 
 // ==========================================
-// 9. MODAL DE DETALLES (Ficha del plato)
+// 9. EL MODAL (Vistazo rápido con recetas)
 // ==========================================
 
 /**
- * Abre la ventanita con ingredientes y preparación.
+ * Cuando pincho en un plato, pido todos los detalles (ingredientes, preparación).
  */
 async function abrirModal(id) {
-    if (!elementos.modal || !elementos.modalBody) return;
-
-    elementos.modalBody.innerHTML = '<div class="skeleton" style="height: 300px; width: 100%;"></div>';
+    if (!elementos.modal) return;
+    elementos.modalBody.innerHTML = '<div class="skeleton" style="height:300px"></div>';
     elementos.modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden'; // Evito que scrollee el fondo.
 
     try {
         const res = await fetch(`${URL_BASE_API}/lookup.php?i=${id}`);
         const data = await res.json();
         const meal = data.meals[0];
 
-        // Procesamos ingredientes (la API nos da hasta 20 posibles huecos)
+        // La API da los ingredientes por separado. Los recojo todos aquí.
         const ingredientes = [];
         for (let i = 1; i <= 20; i++) {
-            const ing = meal[`strIngredient${i}`];
-            const med = meal[`strMeasure${i}`];
+            const ing = meal[`strIngredient${i}`], med = meal[`strMeasure${i}`];
             if (ing && ing.trim()) ingredientes.push(`${med} ${ing}`);
         }
 
         elementos.modalBody.innerHTML = `
-            <img src="${meal.strMealThumb}" alt="${meal.strMeal}" class="modal__img">
-            <span class="modal__category">${meal.strCategory} | ${meal.strArea}</span>
+            <img src="${meal.strMealThumb}" class="modal__img">
             <h2 class="modal__title">${meal.strMeal}</h2>
-            <h3 class="modal__subtitle">Ingredientes</h3>
-            <div class="modal__ingredients">
-                ${ingredientes.map(i => `<div class="modal__ingredient">${i}</div>`).join('')}
-            </div>
-            <h3 class="modal__subtitle">Instrucciones</h3>
+            <div class="modal__ingredients">${ingredientes.map(i => `<div class="modal__ingredient">${i}</div>`).join('')}</div>
+            <h3 class="modal__subtitle">Cómo prepararlo</h3>
             <p class="modal__instructions">${meal.strInstructions}</p>
-            <div style="margin-top: 2rem; display: flex; justify-content: center;">
-                <button class="btn btn--primary" onclick="agregarAlCarrito('${meal.idMeal}'); cerrarModal();">
-                    Añadir al Carrito - $${(meal.idMeal / 1000).toFixed(2)}
-                </button>
+            <div style="display:flex; justify-content:center; margin-top:1.5rem">
+                <button class="btn btn--primary" onclick="agregarAlCarrito('${meal.idMeal}'); cerrarModal();">Añadir al Carrito - $${(meal.idMeal / 1000).toFixed(2)}</button>
             </div>
         `;
-    } catch (error) {
-        elementos.modalBody.innerHTML = '<p>Error al cargar el plato.</p>';
+    } catch (e) {
+        elementos.modalBody.innerHTML = '<p>¡Error! No hemos podido cargar la receta.</p>';
     }
 }
 
-function cerrarModal() {
-    if (elementos.modal) {
-        elementos.modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }
-}
+function cerrarModal() { elementos.modal?.classList.add('hidden'); document.body.style.overflow = 'auto'; }
 
 // ==========================================
-// 10. INICIO DE TODO (DOMContentLoaded)
+// 10. ARRANQUE DEL SISTEMA
 // ==========================================
 
 /**
- * El punto de partida de toda la web.
+ * Función que lo inicia todo en orden.
  */
 async function iniciar() {
     capturarElementos();
-    actualizarConfiguracion(); // Mira si estamos en móvil o PC
+    actualizarConfiguracion();
 
+    // Si la librería EmailJS está cargada, la inicio.
     if (typeof emailjs !== 'undefined') emailjs.init(EMAILJS_PUBLIC_KEY);
 
-    inicializarAuth(); // Mira si hay sesión
-    inyectarNavEventos(); // Activa botones de menú, carritos, etc.
+    inicializarAuth(); // ¿Quién eres?
+    inyectarNavEventos(); // Activo los botones.
 
-    // Cargamos carrito guardado
-    const carritoGuardado = localStorage.getItem('carrito');
-    if (carritoGuardado) {
-        estado.carrito = JSON.parse(carritoGuardado);
-        actualizarCarritoUI();
-    }
-
-    // Recalcular si el usuario gira el móvil o cambia tamaño de ventana
+    // Recalculo si se gira la pantalla.
     window.addEventListener('resize', actualizarConfiguracion);
 }
 
-// ¡Arrancamos!
+// ¡Que empiece la Navidad!
 document.addEventListener('DOMContentLoaded', iniciar);
 
 /**
- * FUNCIONES GLOBALES PARA EL HTML
- * (Necesarias para que los botones con 'onclick' funcionen)
+ * ACCESSO GLOBAL
+ * Hago que estas funciones sean visibles desde el HTML.
  */
 window.cambiarCantidad = cambiarCantidad;
 window.eliminarDelCarrito = eliminarDelCarrito;
