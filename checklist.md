@@ -21,16 +21,16 @@
 - [x] **Filtros**: Filtrar por categoría (Mariscos, Pasta, Postres, Todos)
 - [x] **Ordenación**: Ordenar ascendente/descendente (precio/nombre)
 - [x] **Diseño Card**: Mostrar Imagen, Nombre y Precio en listado
-- [ ] **Detalle**: Vista detallada del producto al seleccionar
+- [x] **Detalle**: Vista detallada del producto al seleccionar (Modal interactivo)
 
 ## 4. Desarrollo JS: Carrito de Compra
 - [x] **Añadir**: Agregar productos al carrito (Boton funcional)
-- [ ] **Visualizar**: Ver contenido completo del carrito (Modal o Página)
+- [x] **Visualizar**: Ver contenido completo del carrito (Vista de Página dedicada)
 - [x] **Badge**: Contador dinámico sobre el icono del carrito
-- [ ] **Persistencia**: Guardar carrito en LocalStorage (1 pto)
-- [ ] **Cantidades**: Manejar incrementos de cantidad (0.5 pto)
-- [ ] **Edición**: Modificar unidades o borrar ítems (0.5 pto)
-- [ ] **Checkout**: Simulación de pedido
+- [x] **Persistencia**: Guardar carrito en LocalStorage (1 pto)
+- [x] **Cantidades**: Manejar incrementos de cantidad (0.5 pto)
+- [x] **Edición**: Modificar unidades o borrar ítems (0.5 pto)
+- [x] **Checkout**: Simulación de pedido
 - [ ] **Email**: Confirmación via EmailJS (1 pto)
 
 ## 5. Diseño CSS (Ana)
