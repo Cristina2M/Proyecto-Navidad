@@ -177,10 +177,22 @@
                     <div class="filters__header">
                         <h2 class="section__title">Nuestros Platos</h2>
                         <div class="filters__controls">
-                            <button class="filter-btn active" data-category="all">Todos</button>
-                            <button class="filter-btn" data-category="Seafood">Mariscos</button>
-                            <button class="filter-btn" data-category="Pasta">Pasta</button>
-                            <button class="filter-btn" data-category="Dessert">Postres</button>
+                            <div class="filters__group">
+                                <button class="filter-btn active" data-category="all">Todos</button>
+                                <button class="filter-btn" data-category="Seafood">Mariscos</button>
+                                <button class="filter-btn" data-category="Pasta">Pasta</button>
+                                <button class="filter-btn" data-category="Dessert">Postres</button>
+                            </div>
+
+                            <div class="sort__group">
+                                <label for="sort-select" class="sort__label">Ordenar por:</label>
+                                <select id="sort-select" class="sort__select">
+                                    <option value="default">Recomendados</option>
+                                    <option value="price-asc">Precio: Menor a Mayor</option>
+                                    <option value="price-desc">Precio: Mayor a Menor</option>
+                                    <option value="name-az">Nombre: A-Z</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </section>

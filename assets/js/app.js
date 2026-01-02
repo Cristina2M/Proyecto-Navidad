@@ -300,7 +300,9 @@ async function cargarContenidoApp() {
         }, 100);
 
         window.addEventListener('scroll', manejarScroll);
+        // ¡Importante! Conectamos los filtros y ordenación ahora que la app es visible
         conectarFiltros();
+        conectarOrdenacion();
     } catch (error) {
         console.error('Error cargando contenido:', error);
     }
@@ -319,9 +321,52 @@ function conectarFiltros() {
 
             // Lógica: Cargamos nueva categoría
             const cat = btn.dataset.category;
+            estado.categoriaActual = cat;
             obtenerProductos(cat);
         });
     });
+}
+
+/**
+ * Conecta el selector de ordenación
+ */
+function conectarOrdenacion() {
+    const selector = document.getElementById('sort-select');
+    if (selector) {
+        selector.addEventListener('change', (e) => {
+            ordenarProductos(e.target.value);
+        });
+    }
+}
+
+/**
+ * Ordena la lista actual de productos en memoria
+ */
+function ordenarProductos(criterio) {
+    if (!estado.todosLosProductos || estado.todosLosProductos.length === 0) return;
+
+    console.log(`Ordenando por: ${criterio}`);
+
+    switch (criterio) {
+        case 'price-asc':
+            // Usamos idMeal como precio simulado
+            estado.todosLosProductos.sort((a, b) => a.idMeal - b.idMeal);
+            break;
+        case 'price-desc':
+            estado.todosLosProductos.sort((a, b) => b.idMeal - a.idMeal);
+            break;
+        case 'name-az':
+            estado.todosLosProductos.sort((a, b) => a.strMeal.localeCompare(b.strMeal));
+            break;
+        default:
+            // Si es default, no hacemos nada especial (o barajamos)
+            break;
+    }
+
+    // Reiniciamos la vista con el nuevo orden
+    estado.indiceActual = 0;
+    if (elementos.app) elementos.app.innerHTML = '';
+    cargarSiguienteBloque(estado.itemsIniciales);
 }
 
 /**
@@ -344,7 +389,8 @@ async function obtenerCategorias() {
  * Obtener Productos por Categoría
  */
 async function obtenerProductos(categoria) {
-    console.log(`Petición API: Buscando productos de ${categoria}...`);
+    const catFinal = categoria === 'all' ? 'Seafood' : categoria;
+    console.log(`Petición API: Buscando productos de ${catFinal}...`);
     estado.cargando = true;
 
     estado.indiceActual = 0;
@@ -359,7 +405,7 @@ async function obtenerProductos(categoria) {
     eliminarBotonCargarMas();
 
     try {
-        const respuesta = await fetch(`${URL_BASE_API}${ENDPOINT_FILTRO}${categoria}`);
+        const respuesta = await fetch(`${URL_BASE_API}${ENDPOINT_FILTRO}${catFinal}`);
         const datos = await respuesta.json();
         estado.todosLosProductos = datos.meals || [];
         cargarSiguienteBloque(estado.itemsIniciales);

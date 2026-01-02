@@ -18,13 +18,13 @@
     - [x] Scroll infinito en PC/Tablet (6/3 y 4/2)
     - [x] Botón "Cargar más" en Móvil (+4 productos)
     - [x] Sincronización con breakpoints CSS (matchMedia)
-- [ ] **Filtros**: Filtrar por categoría
-- [ ] **Ordenación**: Ordenar ascendente/descendente (precio/nombre)
+- [x] **Filtros**: Filtrar por categoría (Mariscos, Pasta, Postres, Todos)
+- [x] **Ordenación**: Ordenar ascendente/descendente (precio/nombre)
 - [x] **Diseño Card**: Mostrar Imagen, Nombre y Precio en listado
 - [ ] **Detalle**: Vista detallada del producto al seleccionar
 
 ## 4. Desarrollo JS: Carrito de Compra
-- [/] **Añadir**: Agregar productos al carrito (Boton funcional)
+- [x] **Añadir**: Agregar productos al carrito (Boton funcional)
 - [ ] **Visualizar**: Ver contenido completo del carrito (Modal o Página)
 - [x] **Badge**: Contador dinámico sobre el icono del carrito
 - [ ] **Persistencia**: Guardar carrito en LocalStorage (1 pto)
