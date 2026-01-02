@@ -36,7 +36,15 @@ const estado = {
     /** @type {Producto[]} */
     productosVisibles: [],
     /** @type {Producto[]} */
-    carrito: (typeof localStorage !== 'undefined') ? JSON.parse(localStorage.getItem('carrito')) || [] : [],
+    carrito: (() => {
+        try {
+            if (typeof localStorage === 'undefined') return [];
+            const data = localStorage.getItem('carrito');
+            return data ? JSON.parse(data) : [];
+        } catch (e) {
+            return [];
+        }
+    })(),
     /** @type {number} */
     captchaEsperado: 0,
     /** @type {string} */

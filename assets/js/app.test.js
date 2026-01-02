@@ -1,6 +1,6 @@
 // Mock localStorage ANTES de cargar app.js
 global.localStorage = {
-    getItem: jest.fn(),
+    getItem: jest.fn().mockReturnValue(null),
     setItem: jest.fn(),
     clear: jest.fn()
 };
