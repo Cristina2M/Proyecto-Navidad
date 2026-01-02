@@ -21,6 +21,14 @@
       "password": "cris123",
       "rol": "cliente",
       "id": 3
+    },
+    {
+      "nombre": "Cristina",
+      "username": "cris",
+      "email": "cristinamoma1c@gmail.com",
+      "password": "cris123",
+      "rol": "cliente",
+      "id": 4
     }
   ],
   "orders": []

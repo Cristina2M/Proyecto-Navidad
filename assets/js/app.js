@@ -14,6 +14,16 @@ const ENDPOINT_FILTRO = '/filter.php?c=';
 const ENDPOINT_RANDOM = '/random.php';
 const URL_JSON_SERVER = 'http://localhost:3000'; // Nuestro backend simulado
 
+// --- Configuración EmailJS ---
+// 1. Ve a https://www.emailjs.com/ y regístrate.
+// 2. Crea un "Email Service" (ej: gmail). Su ID suele ser "service_xxxx".
+// 3. Crea un "Email Template" con las variables: {{to_name}}, {{order_details}}, {{total_price}}.
+// 4. En "Account" -> "Public Key", copia tu clave.
+
+const EMAILJS_PUBLIC_KEY = 'IAQlDtLB8I4gvNOSC'; // Ejemplo: 'user_pW...O9'
+const EMAILJS_SERVICE_ID = 'service_h6gqoor'; // Ejemplo: 'service_navidad'
+const EMAILJS_TEMPLATE_ID = 'template_nzh1gkb'; // Ejemplo: 'template_r1...x'
+
 // --- Gestión del Estado ---
 const estado = {
     usuario: null, // Si es null, mostramos Landing. Si tiene datos, mostramos App.
@@ -315,6 +325,11 @@ async function iniciar() {
 
     // 2. Configuramos dimensiones iniciales (Mobile vs Pc)
     actualizarConfiguracion();
+
+    // 2.5 Inicializar EmailJS
+    if (typeof emailjs !== 'undefined') {
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+    }
 
     // 3. Iniciamos Auth (esto decidirá si vemos Landing o App)
     inicializarAuth();
@@ -752,15 +767,67 @@ function renderizarCarrito() {
     elementos.summaryTotal.textContent = `$${total.toFixed(2)}`;
 }
 
-function simularCheckout() {
+async function simularCheckout() {
     if (estado.carrito.length === 0) return;
 
-    alert('¡Gracias por tu pedido! La magia de la cocina navideña está en camino. 🎁🍗');
+    const btn = elementos.checkoutFinalBtn;
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Procesando pedido... ❄️';
 
-    estado.carrito = [];
-    guardarCarrito();
-    actualizarCarritoUI();
-    cambiarVistaApp('catalog');
+    // 1. Calculamos el total
+    const total = estado.carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+
+    // 2. Preparamos el ID de pedido y los items con los nombres correctos de la API
+    const orderId = "SN-" + Math.floor(Math.random() * 100000);
+
+    const itemsParaEmail = estado.carrito.map(item => ({
+        image_url: item.strMealThumb, // {{image_url}}
+        name: item.strMeal,          // {{name}}
+        units: item.cantidad,        // {{units}}
+        price: item.precio.toFixed(2) // {{price}}
+    }));
+
+    // 3. Mapeamos los campos anidados para que EmailJS lea {{cost.total}}, etc.
+    const templateParams = {
+        order_id: orderId,
+        email: estado.usuario.email,
+        orders: itemsParaEmail,
+        cost: {
+            shipping: "0.00",
+            tax: "0.00",
+            total: total.toFixed(2)
+        }
+    };
+
+    try {
+        if (EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
+            await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+            console.log('¡Email enviado correctamente con tu nueva plantilla!');
+        } else {
+            console.warn('Configura tu Public Key en las primeras líneas de app.js para enviar el mail real.');
+        }
+
+        alert('¡Gracias por tu pedido! Te hemos enviado un correo de confirmación. 🎁🍗');
+
+        // Limpiamos carrito y volvemos al inicio
+        estado.carrito = [];
+        guardarCarrito();
+        actualizarCarritoUI();
+        cambiarVistaApp('catalog');
+
+    } catch (error) {
+        console.error('Error al enviar el email:', error);
+        alert('Pedido registrado, pero hubo un error con el email. ¡Feliz Navidad!');
+
+        estado.carrito = [];
+        guardarCarrito();
+        actualizarCarritoUI();
+        cambiarVistaApp('catalog');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+    }
 }
 
 // --- Modal de Detalles ---
