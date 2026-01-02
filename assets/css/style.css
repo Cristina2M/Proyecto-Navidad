@@ -1,0 +1,16 @@
+/* BEM Methodology will be used here */
+
+:root {
+    /* Define at least 4 variables as per requirements */
+    --primary-color: #ff0000;
+    --secondary-color: #00ff00;
+    --background-color: #ffffff;
+    --text-color: #333333;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    font-family: sans-serif;
+}
