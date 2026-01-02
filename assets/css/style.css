@@ -688,7 +688,7 @@ img {
 }
 
 /* Ocultar bienvenida en móvil para ganar espacio en la cabecera */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 767px) {
     .user-name {
         display: none !important;
     }
