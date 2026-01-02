@@ -3,7 +3,8 @@
    ===================== */
 :root {
     /* Colors */
-    --hue: 350; /* Christmas Red base */
+    --hue: 350;
+    /* Christmas Red base */
     --sat: 80%;
     --lig: 45%;
 
@@ -137,8 +138,9 @@ img {
     top: 0;
     left: 0;
     z-index: var(--z-fixed);
-    background-color: var(--body-color); /* Glassmorphism optional */
-    box-shadow: 0 2px 4px rgba(0,0,0,.08);
+    background-color: var(--body-color);
+    /* Glassmorphism optional */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .08);
 }
 
 .header__container {
@@ -165,7 +167,8 @@ img {
 /* Navigation - Mobile First */
 .nav__menu {
     position: fixed;
-    bottom: 0; /* Or typical mobile drawer */
+    bottom: 0;
+    /* Or typical mobile drawer */
 }
 
 /* Card */
@@ -173,7 +176,7 @@ img {
     background-color: var(--container-color);
     border-radius: 1rem;
     padding: 1rem;
-    box-shadow: 0 4px 16px rgba(0,0,0,.05);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .05);
     transition: .3s;
     position: relative;
     overflow: hidden;
@@ -181,7 +184,7 @@ img {
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0,0,0,.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
 }
 
 .card__image {
@@ -249,4 +252,23 @@ img {
         margin-left: auto;
         margin-right: auto;
     }
+}
+
+/* =====================
+   6. ANIMATIONS
+   ===================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
 }
