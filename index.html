@@ -1,27 +1,122 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tienda On-line - Proyecto Navidad</title>
+    <meta name="description" content="Tienda Online de Comida para Navidad - Las mejores recetas y productos">
+    <title>Sabor Navideño | Tienda Online</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <!-- CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Font Awesome (Optional, for icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <header class="header">
-        <nav class="nav">
-            <!-- Navigation will go here -->
-        </nav>
-    </header>
-    
-    <main class="main">
-        <h1>Bienvenido a la Tienda</h1>
-        <div id="app"></div>
-    </main>
 
-    <footer class="footer">
-        <!-- Footer content -->
-    </footer>
-    
-    <script src="assets/js/app.js"></script>
+<body>
+    <div class="app-container">
+        <!-- Header & Nav -->
+        <header class="header">
+            <div class="header__container container">
+                <a href="#" class="logo">
+                    <i class="fa-solid fa-snowflake logo__icon"></i>
+                    Sabor<span class="logo__highlight">Navideño</span>
+                </a>
+
+                <nav class="nav" id="nav-menu">
+                    <ul class="nav__list">
+                        <li class="nav__item"><a href="#" class="nav__link active-link">Inicio</a></li>
+                        <li class="nav__item"><a href="#productos" class="nav__link">Productos</a></li>
+                        <li class="nav__item"><a href="#contacto" class="nav__link">Contacto</a></li>
+                    </ul>
+                    <div class="nav__close" id="nav-close">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                </nav>
+
+                <div class="header__actions">
+                    <button class="btn-icon" id="cart-toggle" aria-label="Ver carrito">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span class="cart-badge">0</span>
+                    </button>
+                    <button class="btn-icon nav__toggle" id="nav-toggle" aria-label="Abrir menú">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero__content container">
+                    <h1 class="hero__title">Celebra con el mejor <br> <span class="text-gradient">Sabor Navideño</span>
+                    </h1>
+                    <p class="hero__description">Descubre nuestras recetas exclusivas y productos gourmet para hacer de
+                        tu cena una noche inolvidable.</p>
+                    <a href="#productos" class="btn btn--primary">Ver Catálogo <i
+                            class="fa-solid fa-arrow-right"></i></a>
+                </div>
+                <div class="hero__background"></div>
+            </section>
+
+            <!-- Filters Section -->
+            <section class="filters container section">
+                <div class="filters__header">
+                    <h2 class="section__title">Nuestros Platos</h2>
+                    <div class="filters__controls">
+                        <!-- Categories will be injected here -->
+                        <button class="filter-btn active" data-category="all">Todos</button>
+                        <button class="filter-btn" data-category="Seafood">Mariscos</button>
+                        <button class="filter-btn" data-category="Pasta">Pasta</button>
+                        <button class="filter-btn" data-category="Dessert">Postres</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Products Grid -->
+            <section class="products container" id="productos">
+                <div id="app" class="products__grid">
+                    <!-- Cards will be injected by JS -->
+                    <!-- Loading Skeleton Example -->
+                    <article class="card skeleton">
+                        <div class="skeleton__img"></div>
+                        <div class="skeleton__body">
+                            <div class="skeleton__text skeleton__text--title"></div>
+                            <div class="skeleton__text skeleton__text--price"></div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer section">
+            <div class="footer__container container">
+                <div class="footer__content">
+                    <a href="#" class="logo footer__logo">
+                        Sabor<span class="logo__highlight">Navideño</span>
+                    </a>
+                    <p class="footer__description">Llevando la magia de la cocina a tu mesa desde 2025.</p>
+                </div>
+                <div class="footer__social">
+                    <a href="#" class="footer__social-link"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="footer__social-link"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="footer__social-link"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+            <p class="footer__copy">&#169; 2026 Proyecto Navidad. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <!-- JS -->
+    <script src="assets/js/app.js" defer></script>
 </body>
+
 </html>

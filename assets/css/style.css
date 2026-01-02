@@ -1,16 +1,252 @@
-/* BEM Methodology will be used here */
-
+/* =====================
+   1. VARIABLES & RESET
+   ===================== */
 :root {
-    /* Define at least 4 variables as per requirements */
-    --primary-color: #ff0000;
-    --secondary-color: #00ff00;
-    --background-color: #ffffff;
-    --text-color: #333333;
+    /* Colors */
+    --hue: 350; /* Christmas Red base */
+    --sat: 80%;
+    --lig: 45%;
+
+    --first-color: hsl(var(--hue), var(--sat), var(--lig));
+    --first-color-alt: hsl(var(--hue), var(--sat), 35%);
+    --first-color-light: hsl(var(--hue), var(--sat), 85%);
+    --first-color-lighten: hsl(var(--hue), var(--sat), 92%);
+
+    --title-color: hsl(var(--hue), 15%, 15%);
+    --text-color: hsl(var(--hue), 8%, 35%);
+    --text-color-light: hsl(var(--hue), 4%, 55%);
+    --body-color: hsl(var(--hue), 60%, 98%);
+    --container-color: #FFF;
+
+    /* Fonts */
+    --body-font: 'Outfit', sans-serif;
+    --title-font: 'Playfair Display', serif;
+
+    /* Font Sizes */
+    --big-font-size: 2rem;
+    --h1-font-size: 1.5rem;
+    --h2-font-size: 1.25rem;
+    --h3-font-size: 1rem;
+    --normal-font-size: .938rem;
+    --small-font-size: .813rem;
+
+    /* Spacing */
+    --header-height: 3.5rem;
+    --z-fixed: 100;
+}
+
+@media screen and (min-width: 968px) {
+    :root {
+        --big-font-size: 3.5rem;
+        --h1-font-size: 2.25rem;
+        --h2-font-size: 1.5rem;
+        --h3-font-size: 1.25rem;
+        --normal-font-size: 1rem;
+        --small-font-size: .875rem;
+    }
+}
+
+/* Reset */
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
-    background-color: var(--background-color);
+    font-family: var(--body-font);
+    font-size: var(--normal-font-size);
+    background-color: var(--body-color);
     color: var(--text-color);
-    margin: 0;
-    font-family: sans-serif;
+    line-height: 1.6;
+}
+
+ul {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* =====================
+   2. REUSABLE CLASSES
+   ===================== */
+.container {
+    max-width: 1024px;
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+}
+
+.section {
+    padding: 4.5rem 0 2rem;
+}
+
+.section__title {
+    font-size: var(--h1-font-size);
+    font-family: var(--title-font);
+    color: var(--title-color);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.btn {
+    display: inline-block;
+    padding: 1rem 1.75rem;
+    border-radius: .5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .3s;
+    border: none;
+}
+
+.btn--primary {
+    background-color: var(--first-color);
+    color: #FFF;
+}
+
+.btn--primary:hover {
+    background-color: var(--first-color-alt);
+    box-shadow: 0 4px 12px hsla(var(--hue), 80%, 45%, .3);
+}
+
+.text-gradient {
+    background: linear-gradient(90deg, var(--first-color), var(--first-color-alt));
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+/* =====================
+   3. COMPONENTS
+   ===================== */
+/* Header */
+.header {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: var(--z-fixed);
+    background-color: var(--body-color); /* Glassmorphism optional */
+    box-shadow: 0 2px 4px rgba(0,0,0,.08);
+}
+
+.header__container {
+    height: var(--header-height);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-family: var(--title-font);
+    font-size: var(--h2-font-size);
+    font-weight: 700;
+    color: var(--title-color);
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.logo__highlight {
+    color: var(--first-color);
+}
+
+/* Navigation - Mobile First */
+.nav__menu {
+    position: fixed;
+    bottom: 0; /* Or typical mobile drawer */
+}
+
+/* Card */
+.card {
+    background-color: var(--container-color);
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,.05);
+    transition: .3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.1);
+}
+
+.card__image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: .5rem;
+    margin-bottom: 1rem;
+}
+
+.card__data {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.card__title {
+    font-size: var(--h3-font-size);
+    font-weight: 600;
+    color: var(--title-color);
+}
+
+.card__price {
+    font-weight: 700;
+    color: var(--first-color);
+    font-size: var(--h2-font-size);
+}
+
+/* =====================
+   4. LAYOUT
+   ===================== */
+/* Hero */
+.hero {
+    padding-top: calc(var(--header-height) + 2rem);
+    text-align: center;
+}
+
+.hero__title {
+    font-size: var(--big-font-size);
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    font-family: var(--title-font);
+}
+
+.hero__description {
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Product Grid */
+.products__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    padding-bottom: 4rem;
+}
+
+/* =====================
+   5. RESPONSIVE
+   ===================== */
+@media screen and (min-width: 968px) {
+    .container {
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
