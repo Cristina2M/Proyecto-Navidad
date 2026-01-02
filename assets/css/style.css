@@ -789,7 +789,7 @@ img {
 
 /* Irregular Gallery */
 .gallery {
-    padding-top: 2rem;
+    padding-top: 8rem;
 }
 
 .gallery__title {
@@ -802,14 +802,17 @@ img {
 .gallery__grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: 150px;
+    grid-auto-rows: 80px;
     gap: 1rem;
+    padding: .5rem 0;
 }
 
 .gallery__item {
+    position: relative;
     overflow: hidden;
-    border-radius: 1rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+    transition: transform .4s ease, border-radius .4s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .08);
+    z-index: 1;
 }
 
 .gallery__item img {
@@ -819,39 +822,91 @@ img {
     transition: .5s;
 }
 
+.gallery__item:hover {
+    transform: scale(1.08) rotate(0deg) !important;
+    z-index: 15;
+    border-radius: 1rem !important;
+}
+
 .gallery__item:hover img {
     transform: scale(1.1);
 }
 
-/* Irregular spans */
+/* More Compact Abstract Shapes */
 .gallery__item--1 {
     grid-column: span 2;
     grid-row: span 2;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    transform: rotate(-1.5deg);
 }
 
 .gallery__item--2 {
     grid-column: span 1;
     grid-row: span 1;
+    border-radius: 50% 50% 50% 50% / 60% 40% 60% 40%;
+    transform: rotate(2deg);
 }
 
 .gallery__item--3 {
     grid-column: span 1;
     grid-row: span 2;
+    border-radius: 40% 60% 70% 30% / 40% 50% 50% 60%;
+    transform: rotate(-1deg);
+    margin-left: -.5rem;
 }
 
 .gallery__item--4 {
     grid-column: span 1;
     grid-row: span 1;
+    border-radius: 70% 30% 30% 70% / 60% 40% 60% 40%;
+    transform: rotate(1.5deg);
+    margin-top: -.5rem;
 }
 
 .gallery__item--5 {
     grid-column: span 2;
     grid-row: span 1;
+    border-radius: 30% 70% 20% 80% / 50% 50% 50% 50%;
+    transform: rotate(1deg);
+    margin-top: -1rem;
 }
 
 .gallery__item--6 {
     grid-column: span 2;
     grid-row: span 1;
+    border-radius: 80% 20% 50% 50% / 30% 70% 30% 70%;
+    transform: rotate(-2deg);
+    margin-top: -1rem;
+}
+
+.gallery__item--7 {
+    grid-column: span 1;
+    grid-row: span 2;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    transform: rotate(1deg);
+    margin-left: -.75rem;
+}
+
+.gallery__item--8 {
+    grid-column: span 1;
+    grid-row: span 1;
+    border-radius: 30% 70% 70% 30% / 50% 50% 50% 50%;
+    transform: rotate(-2.5deg);
+}
+
+.gallery__item--9 {
+    grid-column: span 2;
+    grid-row: span 2;
+    border-radius: 10% 90% 40% 60% / 40% 80% 20% 60%;
+    transform: rotate(1.5deg);
+    margin-top: -1rem;
+}
+
+.gallery__item--10 {
+    grid-column: span 1;
+    grid-row: span 1;
+    border-radius: 70% 30% 50% 50% / 50% 50% 70% 30%;
+    transform: rotate(-1deg);
 }
 
 /* =====================
@@ -1056,12 +1111,17 @@ img {
 @media screen and (max-width: 767px) {
     .gallery__grid {
         grid-template-columns: repeat(2, 1fr);
-        grid-auto-rows: 120px;
+        grid-auto-rows: 90px;
     }
 
-    .gallery__item--3 {
-        grid-column: span 1;
-        grid-row: span 1;
+    .gallery__item--1 {
+        grid-column: span 2;
+        grid-row: span 2;
+    }
+
+    .gallery__item--6 {
+        grid-column: span 2;
+        /* En móvil mejor que ocupe ancho completo si es irregular */
     }
 }
 

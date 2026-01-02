@@ -20,7 +20,8 @@ const estado = {
     categorias: [],
     todosLosProductos: [],
     productosVisibles: [],
-    carrito: [],
+    carrito: JSON.parse(localStorage.getItem('carrito')) || [],
+    captchaEsperado: 0,
     categoriaActual: 'all',
     cargando: false,
     indiceActual: 0,
@@ -64,6 +65,9 @@ function capturarElementos() {
         navHome: document.getElementById('nav-home'),
         navProducts: document.getElementById('nav-products'),
         cartBtn: document.getElementById('cart-btn'),
+        heroCta: document.getElementById('hero-cta'),
+        captchaLabel: document.getElementById('captcha-label'),
+        captchaInput: document.getElementById('login-captcha'),
 
         // Contenedores del Carrito View
         cartFullList: document.getElementById('cart-full-list'),
@@ -92,7 +96,6 @@ function inicializarAuth() {
         cambiarVista('app');
     } else {
         cambiarVista('landing');
-        cargarGaleriaAleatoria();
     }
 }
 
@@ -102,23 +105,40 @@ function inicializarAuth() {
 async function cargarGaleriaAleatoria() {
     if (!elementos.galleryGrid) return;
 
-    elementos.galleryGrid.innerHTML = '';
+    elementos.galleryGrid.innerHTML = '<div class="gallery__loading">Cargando inspiración...</div>';
 
-    // Necesitamos 6 imágenes
-    for (let i = 1; i <= 6; i++) {
-        try {
-            const res = await fetch(`${URL_BASE_API}${ENDPOINT_RANDOM}`);
-            const data = await res.json();
+    // Necesitamos 10 imágenes. Las pedimos todas a la vez para evitar saltos.
+    const promesas = Array.from({ length: 10 }, () =>
+        fetch(`${URL_BASE_API}${ENDPOINT_RANDOM}`).then(r => r.json())
+    );
+
+    try {
+        const resultados = await Promise.all(promesas);
+        elementos.galleryGrid.innerHTML = '';
+
+        resultados.forEach((data, index) => {
             const meal = data.meals[0];
-
+            const i = index + 1;
             const item = document.createElement('div');
             item.className = `gallery__item gallery__item--${i} fade-in`;
             item.innerHTML = `<img src="${meal.strMealThumb}" alt="${meal.strMeal}">`;
             elementos.galleryGrid.appendChild(item);
-        } catch (error) {
-            console.error('Error cargando imagen aleatoria:', error);
-        }
+        });
+    } catch (error) {
+        console.error('Error cargando imágenes de la galería:', error);
+        elementos.galleryGrid.innerHTML = '<p>Lo sentimos, no pudimos cargar la galería.</p>';
     }
+}
+// --- Utilidades Auth ---
+
+function generarCaptcha() {
+    if (!elementos.captchaLabel) return;
+
+    const num1 = Math.floor(Math.random() * 10) + 1;
+    const num2 = Math.floor(Math.random() * 10) + 1;
+    estado.captchaEsperado = num1 + num2;
+
+    elementos.captchaLabel.textContent = `Pregunta de seguridad: ¿Cuánto es ${num1} + ${num2}?`;
 }
 
 /**
@@ -142,8 +162,14 @@ function cambiarVista(vista) {
             cargarContenidoApp();
         }, 10);
     } else {
-        if (elementos.landing) elementos.landing.classList.remove('hidden');
-        if (elementos.mainApp) elementos.mainApp.classList.add('hidden');
+        if (elementos.landing) {
+            elementos.landing.classList.remove('hidden');
+            generarCaptcha();
+            cargarGaleriaAleatoria(); // Restablecemos la galería
+        }
+        if (elementos.mainApp) {
+            elementos.mainApp.classList.add('hidden');
+        }
     }
 }
 
@@ -181,7 +207,17 @@ async function manejarLogin(e) {
     e.preventDefault();
     const username = elementos.loginForm.username.value;
     const password = elementos.loginForm.password.value;
+    const captchaValue = parseInt(elementos.captchaInput.value);
     const errorMsg = document.getElementById('login-error');
+
+    // Validación básica de captcha
+    if (captchaValue !== estado.captchaEsperado) {
+        errorMsg.textContent = '¡Ups! La suma no es correcta. Inténtalo de nuevo.';
+        errorMsg.classList.remove('hidden');
+        generarCaptcha();
+        elementos.captchaInput.value = '';
+        return;
+    }
 
     try {
         const res = await fetch(`${URL_JSON_SERVER}/users?username=${username}&password=${password}`);
@@ -193,8 +229,11 @@ async function manejarLogin(e) {
             localStorage.setItem('usuario_sesion', JSON.stringify(usuario));
             errorMsg.classList.add('hidden');
             cambiarVista('app');
+            actualizarCarritoUI(); // Actualizar badge y carrito
         } else {
+            errorMsg.textContent = 'Usuario o contraseña incorrectos.';
             errorMsg.classList.remove('hidden');
+            generarCaptcha(); // Cambiar pregunta si fallan credenciales
         }
     } catch (error) {
         console.error('Error en login:', error);
@@ -271,15 +310,16 @@ function actualizarConfiguracion() {
 }
 
 async function iniciar() {
-    console.log('Tienda Online iniciando...');
-
     // 1. Capturamos elementos nada más empezar
     capturarElementos();
 
-    // 2. Iniciamos Auth (esto decidirá si vemos Landing o App)
+    // 2. Configuramos dimensiones iniciales (Mobile vs Pc)
+    actualizarConfiguracion();
+
+    // 3. Iniciamos Auth (esto decidirá si vemos Landing o App)
     inicializarAuth();
 
-    // 3. Conectamos la navegación
+    // 4. Conectamos la navegación
     inyectarNavEventos();
 
     // 4. Cargamos el carrito desde localStorage
@@ -328,10 +368,14 @@ function inyectarNavEventos() {
     });
     if (elementos.navProducts) elementos.navProducts.addEventListener('click', (e) => {
         e.preventDefault();
-        cambiarVistaApp('catalog');
+        cambiarVistaApp('catalog', 'nuestros-platos');
     });
     if (elementos.cartBtn) elementos.cartBtn.addEventListener('click', () => {
         cambiarVistaApp('cart');
+    });
+    if (elementos.heroCta) elementos.heroCta.addEventListener('click', (e) => {
+        e.preventDefault();
+        cambiarVistaApp('catalog', 'nuestros-platos');
     });
     if (elementos.continueShopping) elementos.continueShopping.addEventListener('click', () => {
         cambiarVistaApp('catalog');
@@ -342,7 +386,7 @@ function inyectarNavEventos() {
 /**
  * Alterna entre la vista de catálogo y la vista de carrito completo
  */
-function cambiarVistaApp(vista) {
+function cambiarVistaApp(vista, destino = null) {
     if (vista === 'cart') {
         if (elementos.catalogView) elementos.catalogView.classList.add('hidden');
         if (elementos.cartView) elementos.cartView.classList.remove('hidden');
@@ -357,7 +401,18 @@ function cambiarVistaApp(vista) {
         if (elementos.cartView) elementos.cartView.classList.add('hidden');
 
         if (elementos.navHome) elementos.navHome.classList.add('active-link');
-        window.scrollTo(0, 0);
+
+        if (destino) {
+            const el = document.getElementById(destino);
+            if (el) {
+                // Pequeño retardo para asegurar que la vista es visible antes de scrollear
+                setTimeout(() => {
+                    el.scrollIntoView({ behavior: 'smooth' });
+                }, 10);
+            }
+        } else {
+            window.scrollTo(0, 0);
+        }
     }
 
     // Cerramos menú móvil por si acaso
@@ -470,10 +525,10 @@ async function obtenerCategorias() {
 
 /**
  * Obtener Productos por Categoría
+ * Si es 'all', traemos varias categorías representativas para llenar el catálogo
  */
 async function obtenerProductos(categoria) {
-    const catFinal = categoria === 'all' ? 'Seafood' : categoria;
-    console.log(`Petición API: Buscando productos de ${catFinal}...`);
+    console.log(`Petición API: Buscando productos de ${categoria}...`);
     estado.cargando = true;
 
     estado.indiceActual = 0;
@@ -488,10 +543,35 @@ async function obtenerProductos(categoria) {
     eliminarBotonCargarMas();
 
     try {
-        const respuesta = await fetch(`${URL_BASE_API}${ENDPOINT_FILTRO}${catFinal}`);
-        const datos = await respuesta.json();
-        estado.todosLosProductos = datos.meals || [];
-        cargarSiguienteBloque(estado.itemsIniciales);
+        let listaFinal = [];
+
+        if (categoria === 'all') {
+            // Traemos varias categorías en paralelo para "Todos"
+            const categoriasTienda = ['Seafood', 'Pasta', 'Dessert'];
+            const promesas = categoriasTienda.map(cat =>
+                fetch(`${URL_BASE_API}${ENDPOINT_FILTRO}${cat}`).then(r => r.json())
+            );
+
+            const resultados = await Promise.all(promesas);
+            resultados.forEach(data => {
+                if (data.meals) listaFinal = [...listaFinal, ...data.meals];
+            });
+        } else {
+            // Categoría única
+            const respuesta = await fetch(`${URL_BASE_API}${ENDPOINT_FILTRO}${categoria}`);
+            const datos = await respuesta.json();
+            listaFinal = datos.meals || [];
+        }
+
+        estado.todosLosProductos = listaFinal;
+
+        // Aplicar ordenación actual si existe
+        if (elementos.sortSelect && elementos.sortSelect.value !== 'default') {
+            ordenarProductos(elementos.sortSelect.value);
+        } else {
+            cargarSiguienteBloque(estado.itemsIniciales);
+        }
+
     } catch (error) {
         console.error('Error al obtener productos:', error);
     } finally {
