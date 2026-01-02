@@ -178,6 +178,13 @@ img {
     color: var(--first-color);
 }
 
+.logo__img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 3rem;
+}
+
 /* Full-Page Cart View */
 .cart-page__container {
     display: grid;

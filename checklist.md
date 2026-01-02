@@ -10,7 +10,7 @@
 - [x] **Login**: Implementar login contra Json Server
 - [x] **Registro**: Creación de usuarios en la base de datos
 - [x] **Tokens**: Simulación de sesión persistente (LocalStorage)
-- [ ] **Seguridad**: Protección básica en login/pedidos (anti-bot)
+- [x] **Seguridad**: Protección básica en login/pedidos (anti-bot)
 
 ## 3. Desarrollo JS: Catálogo de Productos
 - [x] **Listado**: Mostrar productos desde la API externa
@@ -45,7 +45,7 @@
     - [x] Formularios estilizados (Login/Register)
     - [x] Galería de imágenes (Grid irregular dinámico)
 - [x] **Extras**:
-    - [ ] Favicon
+    - [x] Favicon
     - [x] 4 Animaciones/Efectos:
         - [x] Fade-in al cargar página
         - [x] Fade-in en productos (scroll)
