@@ -1,7 +1,7 @@
 # Proyecto Final Trimestre - Tienda on-line
 
 ## Sergio (JS) - Funcionalidad
-Haciendo uso de JS vamos a realizar una aplicación para una tienda on-line. Para ello nos vamos a basar en una API (https://fakestoreapi.com/ , http://www.omdbapi.com/ o similar ) la cual nos simula el Backend necesario para este desarrollo. Tu primera tarea será pues estudiar esta API y hacer las pruebas oportunas antes de comenzar el desarrollo.
+Haciendo uso de JS vamos a realizar una aplicación para una **tienda de comida a domicilio (tipo JustEat)**. Para ello nos vamos a basar en la API **[TheMealDB](https://www.themealdb.com/)**, la cual nos simula el Backend necesario para obtener los productos (comidas). Tu primera tarea será estudiar esta API y hacer las pruebas oportunas antes de comenzar el desarrollo.
 
 La aplicación debe, basándose en el desarrollo de interfaz entregado:
 1. Login contra Json Server.
