@@ -17,7 +17,7 @@ RUN rm -rf ./*
 COPY . .
 
 # Copiamos la documentación generada en la etapa anterior
-COPY --from=build-docs /app/docs ./docs
+COPY --from=build-docs /app/documentacion ./documentacion
 
 # Copiamos la configuración de Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf

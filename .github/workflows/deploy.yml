@@ -77,7 +77,7 @@ jobs:
       - name: Comprobar que hay docs generadas
         id: check
         run: |
-          if [ -d "docs" ] && [ "$(ls -A docs)" ]; then
+          if [ -d "documentacion" ] && [ "$(ls -A documentacion)" ]; then
             echo "has_docs=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_docs=false" >> "$GITHUB_OUTPUT"
