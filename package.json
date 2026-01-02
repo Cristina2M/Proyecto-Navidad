@@ -1,0 +1,21 @@
+{
+    "name": "proyecto-navidad",
+    "version": "1.0.0",
+    "description": "Tienda Online de Comida para Navidad - Sabor Navideño",
+    "main": "index.html",
+    "scripts": {
+        "server": "json-server --watch db.json --port 3000",
+        "dev": "json-server --watch db.json --port 3000"
+    },
+    "keywords": [
+        "ecommerce",
+        "navidad",
+        "tienda",
+        "food"
+    ],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "json-server": "^0.17.4"
+    }
+}

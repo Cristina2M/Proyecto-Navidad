@@ -2,9 +2,9 @@
 
 ## 1. Configuración e Infraestructura
 - [x] Inicializar repositorio Git y crear rama `develop`
-- [ ] Configurar `json-server` (Backend simulado)
+- [x] Configurar `json-server` (Backend simulado)
 - [x] API seleccionada: [TheMealDB](https://www.themealdb.com/) (Tienda de comida - JustEat)
-- [ ] Estructura inicial de carpetas
+- [x] Estructura inicial de carpetas
 
 ## 2. Desarrollo JS: Autenticación y Core
 - [ ] **Login**: Implementar login contra Json Server
@@ -12,11 +12,14 @@
 - [ ] **Tokens**: Simulación de JWT o manejo de sesión
 
 ## 3. Desarrollo JS: Catálogo de Productos
-- [ ] **Listado**: Mostrar productos desde la API externa
-- [ ] **Paginación**: Implementar Scroll Infinito (o carga progresiva)
+- [x] **Listado**: Mostrar productos desde la API externa
+- [x] **Paginación**: Implementar Scroll Infinito (o carga progresiva)
+    - [x] Scroll infinito en PC/Tablet (6/3 y 4/2)
+    - [x] Botón "Cargar más" en Móvil (+4 productos)
+    - [x] Sincronización con breakpoints CSS (matchMedia)
 - [ ] **Filtros**: Filtrar por categoría
 - [ ] **Ordenación**: Ordenar ascendente/descendente (precio/nombre)
-- [ ] **Diseño Card**: Mostrar Imagen, Nombre y Precio en listado
+- [x] **Diseño Card**: Mostrar Imagen, Nombre y Precio en listado
 - [ ] **Detalle**: Vista detallada del producto al seleccionar
 
 ## 4. Desarrollo JS: Carrito de Compra
@@ -29,16 +32,23 @@
 - [ ] **Email**: Confirmación via EmailJS (1 pto)
 
 ## 5. Diseño CSS (Ana)
-- [ ] **Metodología**: Usar BEM
-- [ ] **Variables**: Definir al menos 4 variables CSS
-- [ ] **Responsive**: Adaptable a Móvil (576px), Tablet (1024px), Desktop
-- [ ] **Componentes**:
-    - [ ] Barra de navegación (colapsable)
+- [x] **Metodología**: Usar BEM
+- [x] **Variables**: Definir al menos 4 variables CSS (8+ variables definidas)
+- [x] **Responsive**: Adaptable a Móvil (576px), Tablet (768-967px), Desktop (968px+)
+- [x] **Componentes**:
+    - [x] Barra de navegación (colapsable)
+    - [x] Botones estilizados (primary, outline)
+    - [x] Cards de productos con hover
+    - [x] Sistema de Grid responsive
     - [ ] Formularios y tablas estilizados
     - [ ] Galería de imágenes (Grid irregular)
-- [ ] **Extras**:
+- [x] **Extras**:
     - [ ] Favicon
-    - [ ] 4 Animaciones/Efectos
+    - [x] 4 Animaciones/Efectos:
+        - [x] Fade-in al cargar página
+        - [x] Fade-in en productos (scroll)
+        - [x] Efecto nieve (22 copos animados)
+        - [x] Hover effects en cards/botones
 
 ## 6. Despliegue (Susana)
 - [ ] **CI/CD**: Configurar GitHub Actions

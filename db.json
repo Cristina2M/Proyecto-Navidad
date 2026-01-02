@@ -1,0 +1,19 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "admin123",
+      "email": "admin@sabornavideno.com",
+      "name": "Administrador"
+    },
+    {
+      "id": 2,
+      "username": "usuario",
+      "password": "user123",
+      "email": "usuario@example.com",
+      "name": "Usuario Demo"
+    }
+  ],
+  "orders": []
+}
