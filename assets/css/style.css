@@ -687,6 +687,13 @@ img {
     font-size: var(--small-font-size);
 }
 
+/* Ocultar bienvenida en móvil para ganar espacio */
+@media screen and (max-width: 768px) {
+    .user-name {
+        display: none;
+    }
+}
+
 .landing {
     min-height: 100vh;
     padding: 2rem 0;
