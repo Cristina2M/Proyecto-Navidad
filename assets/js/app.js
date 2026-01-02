@@ -584,7 +584,7 @@ function agregarAlCarrito(id) {
 
     guardarCarrito();
     actualizarCarritoUI();
-    if (!elementos.cartView.classList.contains('hidden')) renderizarCarrito();
+    if (elementos.cartView && !elementos.cartView.classList.contains('hidden')) renderizarCarrito();
 }
 
 /**
@@ -609,11 +609,14 @@ function actualizarCarritoUI() {
  */
 function renderizarCarrito() {
     if (!elementos.cartFullList) return;
+
     if (estado.carrito.length === 0) {
         elementos.cartFullList.innerHTML = `<div class="cart-empty"><p>Tu carrito está vacío. ¡Vuelve a por algo rico!</p><button class="btn btn--primary" onclick="cambiarVistaApp('catalog')">Ir a Tienda</button></div>`;
-        elementos.summarySubtotal.textContent = '$0.00'; elementos.summaryTotal.textContent = '$0.00';
+        if (elementos.summarySubtotal) elementos.summarySubtotal.textContent = '$0.00';
+        if (elementos.summaryTotal) elementos.summaryTotal.textContent = '$0.00';
         return;
     }
+
     let total = 0;
     elementos.cartFullList.innerHTML = estado.carrito.map(item => {
         total += item.precio * item.cantidad;
@@ -631,8 +634,9 @@ function renderizarCarrito() {
             <i class="fa-solid fa-trash-can cart-item__del" onclick="eliminarDelCarrito('${item.idMeal}')"></i>
         </div>`;
     }).join('');
-    elementos.summarySubtotal.textContent = `$${total.toFixed(2)}`;
-    elementos.summaryTotal.textContent = `$${total.toFixed(2)}`;
+
+    if (elementos.summarySubtotal) elementos.summarySubtotal.textContent = `$${total.toFixed(2)}`;
+    if (elementos.summaryTotal) elementos.summaryTotal.textContent = `$${total.toFixed(2)}`;
 }
 
 /**
