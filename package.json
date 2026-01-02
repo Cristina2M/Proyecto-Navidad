@@ -19,6 +19,8 @@
     "author": "",
     "license": "ISC",
     "devDependencies": {
+        "jest": "^29.7.0",
+        "jsdoc": "^4.0.2",
         "json-server": "^0.17.4"
     }
 }
