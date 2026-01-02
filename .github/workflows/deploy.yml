@@ -110,13 +110,15 @@ jobs:
         with:
           context: .
           push: ${{ secrets.DOCKERHUB_USERNAME != '' }}
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sabor-navideno:latest
+          # Usamos un fallback si el secreto no está configurado para evitar errores de tag
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME || 'sabor-navideno' }}/sabor-navideno:latest
 
   deploy-ec2:
     name: 5) Despliegue en EC2 (Contenedor)
     runs-on: ubuntu-latest
     needs: docker-build
-    if: always() && needs.docker-build.result == 'success'
+    if: always() && needs.docker-build.result == 'success' && secrets.EC2_HOST != ''
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -126,8 +128,12 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             # Actualizar contenedor en EC2
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sabor-navideno:latest || true
-            docker stop sabor-navideno || true
-            docker rm sabor-navideno || true
-            docker run -d --name sabor-navideno -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/sabor-navideno:latest
-            echo "Despliegue finalizado en producción"
+            if [ "${{ secrets.DOCKERHUB_USERNAME }}" != "" ]; then
+              docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sabor-navideno:latest || true
+              docker stop sabor-navideno || true
+              docker rm sabor-navideno || true
+              docker run -d --name sabor-navideno -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/sabor-navideno:latest
+              echo "Despliegue finalizado en producción"
+            else
+              echo "Omitiendo despliegue: DOCKERHUB_USERNAME no configurado"
+            fi
