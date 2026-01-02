@@ -1,6 +1,4 @@
-const { estado, agregarAlCarrito, eliminarDelCarrito } = require('./app');
-
-// Mock localStorage
+// Mock localStorage ANTES de cargar app.js
 global.localStorage = {
     getItem: jest.fn(),
     setItem: jest.fn(),
@@ -12,6 +10,8 @@ global.document = {
     getElementById: jest.fn().mockReturnValue({}),
     querySelector: jest.fn().mockReturnValue({})
 };
+
+const { estado, agregarAlCarrito, eliminarDelCarrito } = require('./app');
 
 describe('Lógica del Carrito (Sergio/Core)', () => {
     beforeEach(() => {

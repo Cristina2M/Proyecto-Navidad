@@ -36,7 +36,7 @@ const estado = {
     /** @type {Producto[]} */
     productosVisibles: [],
     /** @type {Producto[]} */
-    carrito: JSON.parse(localStorage.getItem('carrito')) || [],
+    carrito: (typeof localStorage !== 'undefined') ? JSON.parse(localStorage.getItem('carrito')) || [] : [],
     /** @type {number} */
     captchaEsperado: 0,
     /** @type {string} */
