@@ -1,5 +1,7 @@
 # Proyecto Final Trimestre - Tienda on-line
 
+## URL: https://cristina2m.github.io/Proyecto-Navidad/
+
 ## Sergio (JS) - Funcionalidad
 Haciendo uso de JS vamos a realizar una aplicación para una **tienda de comida a domicilio (tipo JustEat)**. Para ello nos vamos a basar en la API **[TheMealDB](https://www.themealdb.com/)**, la cual nos simula el Backend necesario para obtener los productos (comidas). Tu primera tarea será estudiar esta API y hacer las pruebas oportunas antes de comenzar el desarrollo.
 
