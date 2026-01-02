@@ -13,6 +13,14 @@
       "password": "user123",
       "email": "usuario@example.com",
       "name": "Usuario Demo"
+    },
+    {
+      "nombre": "cristina moreno",
+      "username": "cristina",
+      "email": "c@email.com",
+      "password": "cris123",
+      "rol": "cliente",
+      "id": 3
     }
   ],
   "orders": []

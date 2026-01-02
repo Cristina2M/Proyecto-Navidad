@@ -447,3 +447,225 @@ img {
 .fade-in {
     animation: fadeIn 0.5s ease-out forwards;
 }
+
+/* =====================
+   7. LANDING & AUTH
+   ===================== */
+.hidden {
+    display: none !important;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--first-color);
+    font-size: var(--small-font-size);
+}
+
+.landing {
+    min-height: 100vh;
+    padding: 2rem 0;
+    background: linear-gradient(135deg, var(--body-color) 0%, var(--first-color-lighten) 100%);
+    display: flex;
+    align-items: center;
+}
+
+.landing__container {
+    display: grid;
+    gap: 3rem;
+}
+
+.landing__header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.landing__title {
+    font-family: var(--title-font);
+    font-size: var(--h1-font-size);
+    margin: 1.5rem 0 .5rem;
+}
+
+.auth {
+    background-color: var(--container-color);
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+.auth__tabs {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--first-color-lighten);
+}
+
+.auth__tab {
+    padding-bottom: .75rem;
+    font-weight: 600;
+    color: var(--text-color-light);
+    cursor: pointer;
+    border: none;
+    background: none;
+    transition: .3s;
+    position: relative;
+}
+
+.auth__tab.active {
+    color: var(--first-color);
+}
+
+.auth__tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--first-color);
+    border-radius: 3px;
+}
+
+.auth__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.auth__group {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.auth__group label {
+    font-size: var(--small-font-size);
+    font-weight: 600;
+    color: var(--title-color);
+}
+
+.auth__group input {
+    padding: 1rem;
+    border: 2px solid var(--first-color-light);
+    border-radius: .75rem;
+    font-family: var(--body-font);
+    font-size: var(--normal-font-size);
+    transition: .3s;
+}
+
+.auth__group input:focus {
+    outline: none;
+    border-color: var(--first-color);
+    box-shadow: 0 0 8px hsla(var(--hue), 80%, 45%, .1);
+}
+
+.btn--block {
+    width: 100%;
+}
+
+.auth__error {
+    color: var(--first-color);
+    font-size: var(--small-font-size);
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Irregular Gallery */
+.gallery {
+    padding-top: 2rem;
+}
+
+.gallery__title {
+    font-family: var(--title-font);
+    font-size: var(--h2-font-size);
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.gallery__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 150px;
+    gap: 1rem;
+}
+
+.gallery__item {
+    overflow: hidden;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+}
+
+.gallery__item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: .5s;
+}
+
+.gallery__item:hover img {
+    transform: scale(1.1);
+}
+
+/* Irregular spans */
+.gallery__item--1 {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+.gallery__item--2 {
+    grid-column: span 1;
+    grid-row: span 1;
+}
+
+.gallery__item--3 {
+    grid-column: span 1;
+    grid-row: span 2;
+}
+
+.gallery__item--4 {
+    grid-column: span 1;
+    grid-row: span 1;
+}
+
+.gallery__item--5 {
+    grid-column: span 2;
+    grid-row: span 1;
+}
+
+.gallery__item--6 {
+    grid-column: span 2;
+    grid-row: span 1;
+}
+
+@media screen and (min-width: 768px) {
+    .landing__container {
+        grid-template-columns: 1fr 1.2fr;
+        align-items: center;
+    }
+
+    .landing__content {
+        text-align: left;
+    }
+
+    .landing__header {
+        text-align: left;
+    }
+
+    .gallery {
+        margin-top: 0;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .gallery__grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: 120px;
+    }
+
+    .gallery__item--3 {
+        grid-column: span 1;
+        grid-row: span 1;
+    }
+}

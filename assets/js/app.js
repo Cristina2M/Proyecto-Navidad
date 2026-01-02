@@ -11,93 +11,221 @@
 const URL_BASE_API = 'https://www.themealdb.com/api/json/v1/1';
 const ENDPOINT_CATEGORIAS = '/categories.php';
 const ENDPOINT_FILTRO = '/filter.php?c=';
+const ENDPOINT_RANDOM = '/random.php';
+const URL_JSON_SERVER = 'http://localhost:3000'; // Nuestro backend simulado
 
 // --- Gestión del Estado ---
-// Aquí guardamos toda la info de la aplicación mientras la usamos
 const estado = {
+    usuario: null, // Si es null, mostramos Landing. Si tiene datos, mostramos App.
     categorias: [],
-    todosLosProductos: [], // Aquí guardamos TODO lo que nos devuelve la API
-    productosVisibles: [], // Aquí solo lo que mostramos en pantalla
+    todosLosProductos: [],
+    productosVisibles: [],
     carrito: [],
     categoriaActual: 'all',
     cargando: false,
     indiceActual: 0,
-
-    // Configuración por defecto (se ajustará según el dispositivo)
     itemsIniciales: 6,
     itemsPorPagina: 3,
-    modoBoton: false, // Si es true, mostramos botón "Cargar Más". Si es false, Scroll Infinito.
+    modoBoton: false,
 };
 
 // --- Elementos del DOM ---
-// Buscamos los elementos en el HTML para poder modificarlos
 const elementos = {
     app: document.getElementById('app'),
     badgeCarrito: document.querySelector('.cart-badge'),
+    landing: document.getElementById('landing-page'),
+    mainApp: document.getElementById('main-app'),
+    userWelcome: document.getElementById('user-welcome'),
+    loginForm: document.getElementById('login-form'),
+    registerForm: document.getElementById('register-form'),
+    logoutBtn: document.getElementById('logout-btn'),
+    galleryGrid: document.querySelector('.gallery__grid'),
 };
 
-// --- Funciones de Configuración Responsive ---
+// --- Gestión de Autenticación ---
 
 /**
- * Esta función decide cómo se comporta la página según el tamaño de la ventana.
- * PC: Scroll Infinito (Carga 6 y luego de 3 en 3).
- * Tablet: Scroll Infinito (Carga 4 y luego de 2 en 2).
- * Móvil: Botón "Cargar Más" (Carga 4 y luego de 4 en 4).
+ * Inicializa la autenticación revisando si había una sesión guardada.
  */
-function actualizarConfiguracion() {
-    // Usamos matchMedia para coincidir EXACTAMENTE con el CSS (evitando problemas de scrollbar)
-    const esPC = window.matchMedia('(min-width: 968px)').matches;
-    const esTablet = window.matchMedia('(min-width: 768px)').matches;
-
-    if (esPC) {
-        // --- PC (> 968px) ---
-        console.log('Modo PC detectado');
-        estado.itemsIniciales = 6;
-        estado.itemsPorPagina = 3;
-        estado.modoBoton = false;
-    } else if (esTablet) {
-        // --- Tablet (768px - 967px) ---
-        console.log('Modo Tablet detectado');
-        estado.itemsIniciales = 4;
-        estado.itemsPorPagina = 2;
-        estado.modoBoton = false;
+function inicializarAuth() {
+    const sesion = localStorage.getItem('usuario_sesion');
+    if (sesion) {
+        estado.usuario = JSON.parse(sesion);
+        cambiarVista('app');
     } else {
-        // --- Móvil (< 768px) ---
-        console.log('Modo Móvil detectado');
-        estado.itemsIniciales = 4;
-        estado.itemsPorPagina = 4;
-        estado.modoBoton = true;
+        cambiarVista('landing');
+        cargarGaleriaAleatoria();
+    }
+
+    configurarEventosAuth();
+}
+
+/**
+ * Carga 6 fotos aleatorias de la API para la galería de la Landing
+ */
+async function cargarGaleriaAleatoria() {
+    if (!elementos.galleryGrid) return;
+
+    elementos.galleryGrid.innerHTML = '';
+
+    // Necesitamos 6 imágenes
+    for (let i = 1; i <= 6; i++) {
+        try {
+            const res = await fetch(`${URL_BASE_API}${ENDPOINT_RANDOM}`);
+            const data = await res.json();
+            const meal = data.meals[0];
+
+            const item = document.createElement('div');
+            item.className = `gallery__item gallery__item--${i} fade-in`;
+            item.innerHTML = `<img src="${meal.strMealThumb}" alt="${meal.strMeal}">`;
+            elementos.galleryGrid.appendChild(item);
+        } catch (error) {
+            console.error('Error cargando imagen aleatoria:', error);
+        }
     }
 }
 
-// --- Funciones Principales ---
+/**
+ * Controla qué parte de la web se muestra (Landing o App Principal)
+ */
+function cambiarVista(vista) {
+    if (vista === 'app') {
+        elementos.landing.classList.add('hidden');
+        elementos.mainApp.classList.remove('hidden');
+        if (estado.usuario) {
+            elementos.userWelcome.textContent = `Hola, ${estado.usuario.nombre || estado.usuario.username}`;
+        }
+        // Iniciamos la carga de productos solo si entramos a la app
+        cargarContenidoApp();
+    } else {
+        elementos.landing.classList.remove('hidden');
+        elementos.mainApp.classList.add('hidden');
+    }
+}
 
 /**
- * Inicializar la aplicación
- * Es lo primero que se ejecuta cuando carga la página.
+ * Configura los clicks de los formularios de login/registro
  */
+function configurarEventosAuth() {
+    // Cambio entre pestañas de Login y Registro
+    const tabs = document.querySelectorAll('.auth__tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            const target = tab.dataset.target;
+            if (target === 'login') {
+                elementos.loginForm.classList.remove('hidden');
+                elementos.registerForm.classList.add('hidden');
+            } else {
+                elementos.loginForm.classList.add('hidden');
+                elementos.registerForm.classList.remove('hidden');
+            }
+        });
+    });
+
+    // Envío del Login
+    elementos.loginForm.addEventListener('submit', manejarLogin);
+    // Envío del Registro
+    elementos.registerForm.addEventListener('submit', manejarRegistro);
+    // Botón de Logout
+    elementos.logoutBtn.addEventListener('click', manejarLogout);
+}
+
+async function manejarLogin(e) {
+    e.preventDefault();
+    const username = elementos.loginForm.username.value;
+    const password = elementos.loginForm.password.value;
+    const errorMsg = document.getElementById('login-error');
+
+    try {
+        const res = await fetch(`${URL_JSON_SERVER}/users?username=${username}&password=${password}`);
+        const usuarios = await res.json();
+
+        if (usuarios.length > 0) {
+            const usuario = usuarios[0];
+            estado.usuario = usuario;
+            localStorage.setItem('usuario_sesion', JSON.stringify(usuario));
+            errorMsg.classList.add('hidden');
+            cambiarVista('app');
+        } else {
+            errorMsg.classList.remove('hidden');
+        }
+    } catch (error) {
+        console.error('Error en login:', error);
+    }
+}
+
+async function manejarRegistro(e) {
+    e.preventDefault();
+    const formData = new FormData(elementos.registerForm);
+    const nuevoUsuario = {
+        nombre: formData.get('name'),
+        username: formData.get('username'),
+        email: formData.get('email'),
+        password: formData.get('password'),
+        rol: 'cliente'
+    };
+
+    try {
+        // Primero comprobamos si el usuario ya existe
+        const checkRes = await fetch(`${URL_JSON_SERVER}/users?username=${nuevoUsuario.username}`);
+        const existe = await checkRes.json();
+
+        if (existe.length > 0) {
+            alert('El nombre de usuario ya está cogido.');
+            return;
+        }
+
+        const res = await fetch(`${URL_JSON_SERVER}/users`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevoUsuario)
+        });
+
+        if (res.ok) {
+            const usuarioCreado = await res.json();
+            alert('¡Cuenta creada con éxito! Ya puedes entrar.');
+            // Cambiamos a la pestaña de login
+            document.querySelector('[data-target="login"]').click();
+        }
+    } catch (error) {
+        console.error('Error en registro:', error);
+    }
+}
+
+function manejarLogout() {
+    estado.usuario = null;
+    localStorage.removeItem('usuario_sesion');
+    // Limpiamos la app para que al volver a entrar esté fresca
+    elementos.app.innerHTML = '';
+    cambiarVista('landing');
+}
+
+// --- Funciones de Configuración Responsive ---
+
 async function iniciar() {
     console.log('Tienda Online iniciando...');
 
-    // 1. Configuramos reglas según dispositivo
-    actualizarConfiguracion();
+    // 1. Iniciamos Auth (esto decidirá si vemos Landing o App)
+    inicializarAuth();
 
     // Si cambian el tamaño de la ventana, recalculamos
-    window.addEventListener('resize', () => {
-        actualizarConfiguracion();
-        // Nota: Podríamos recargar productos aquí si quisiéramos ser muy estrictos,
-        // pero por ahora solo actualizamos la regla para la siguiente carga.
-    });
+    window.addEventListener('resize', actualizarConfiguracion);
+}
 
+/**
+ * Carga todo lo necesario cuando el usuario entra a la app
+ */
+async function cargarContenidoApp() {
+    actualizarConfiguracion();
     try {
         await obtenerCategorias();
-        // Carga por defecto
         await obtenerProductos('Seafood');
-
-        // Listener para Scroll Infinito (solo funcionará si modoBoton es false)
         window.addEventListener('scroll', manejarScroll);
     } catch (error) {
-        console.error('Error durante la inicialización:', error);
+        console.error('Error cargando contenido:', error);
     }
 }
 

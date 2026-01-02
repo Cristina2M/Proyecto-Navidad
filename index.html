@@ -19,100 +19,178 @@
 </head>
 
 <body>
-    <div class="app-container">
-        <!-- Header & Nav -->
-        <header class="header">
-            <div class="header__container container">
-                <a href="#" class="logo">
-                    <i class="fa-solid fa-snowflake logo__icon"></i>
-                    Sabor<span class="logo__highlight">Navideño</span>
-                </a>
+    <div class="app-container page-enter">
+        <!-- 1. LANDING PAGE (Guest View) -->
+        <section id="landing-page" class="landing">
+            <div class="landing__container container">
+                <div class="landing__content">
+                    <header class="landing__header">
+                        <div class="logo">
+                            <i class="fa-solid fa-snowflake logo__icon"></i>
+                            Sabor<span class="logo__highlight">Navideño</span>
+                        </div>
+                        <h1 class="landing__title">La Magia de la Navidad en tu Mesa</h1>
+                        <p class="landing__subtitle">Regístrate para descubrir nuestras recetas exclusivas y realizar tu
+                            pedido.</p>
+                    </header>
 
-                <nav class="nav nav__menu" id="nav-menu">
-                    <ul class="nav__list">
-                        <li class="nav__item"><a href="#" class="nav__link active-link">Inicio</a></li>
-                        <li class="nav__item"><a href="#productos" class="nav__link">Productos</a></li>
-                        <li class="nav__item"><a href="#contacto" class="nav__link">Contacto</a></li>
-                    </ul>
-                    <div class="nav__close" id="nav-close">
-                        <i class="fa-solid fa-xmark"></i>
+                    <!-- Auth Forms -->
+                    <div class="auth">
+                        <div class="auth__tabs">
+                            <button class="auth__tab active" data-target="login">Entrar</button>
+                            <button class="auth__tab" data-target="register">Registrarse</button>
+                        </div>
+
+                        <!-- Login Form -->
+                        <form id="login-form" class="auth__form">
+                            <div class="auth__group">
+                                <label for="login-username">Usuario</label>
+                                <input type="text" id="login-username" name="username" placeholder="Tu usuario"
+                                    required>
+                            </div>
+                            <div class="auth__group">
+                                <label for="login-password">Contraseña</label>
+                                <input type="password" id="login-password" name="password" placeholder="Tu contraseña"
+                                    required>
+                            </div>
+                            <button type="submit" class="btn btn--primary btn--block">Entrar ahora</button>
+                            <p class="auth__error hidden" id="login-error">Usuario o contraseña incorrectos.</p>
+                        </form>
+
+                        <!-- Register Form (Hidden by default) -->
+                        <form id="register-form" class="auth__form hidden">
+                            <div class="auth__group">
+                                <label for="reg-name">Nombre Completo</label>
+                                <input type="text" id="reg-name" name="name" placeholder="Tu nombre" required>
+                            </div>
+                            <div class="auth__group">
+                                <label for="reg-username">Usuario</label>
+                                <input type="text" id="reg-username" name="username" placeholder="Crea un usuario"
+                                    required>
+                            </div>
+                            <div class="auth__group">
+                                <label for="reg-email">Email</label>
+                                <input type="email" id="reg-email" name="email" placeholder="tu@email.com" required>
+                            </div>
+                            <div class="auth__group">
+                                <label for="reg-password">Contraseña</label>
+                                <input type="password" id="reg-password" name="password"
+                                    placeholder="Mínimo 6 caracteres" required>
+                            </div>
+                            <button type="submit" class="btn btn--primary btn--block">Crear Cuenta</button>
+                        </form>
                     </div>
-                </nav>
+                </div>
 
-                <div class="header__actions">
-                    <button class="btn-icon" id="cart-toggle" aria-label="Ver carrito">
-                        <i class="fa-solid fa-cart-shopping"></i>
-                        <span class="cart-badge">0</span>
-                    </button>
-                    <button class="btn-icon nav__toggle" id="nav-toggle" aria-label="Abrir menú">
-                        <i class="fa-solid fa-bars"></i>
-                    </button>
+                <!-- Irregular Food Gallery -->
+                <div class="landing__gallery gallery">
+                    <h2 class="gallery__title">Déjate Inspirar</h2>
+                    <div class="gallery__grid">
+                        <!-- Se cargará dinámicamente con imágenes aleatorias -->
+                    </div>
                 </div>
             </div>
-        </header>
+        </section>
 
-        <!-- Main Content -->
-        <main class="main">
-            <!-- Hero Section -->
-            <section class="hero">
-                <div class="hero__content container">
-                    <h1 class="hero__title">Celebra con el mejor <br> <span class="text-gradient">Sabor Navideño</span>
-                    </h1>
-                    <p class="hero__description">Descubre nuestras recetas exclusivas y productos gourmet para hacer de
-                        tu cena una noche inolvidable.</p>
-                    <a href="#productos" class="btn btn--primary">Ver Catálogo <i
-                            class="fa-solid fa-arrow-right"></i></a>
-                </div>
-                <div class="hero__background"></div>
-            </section>
-
-            <!-- Filters Section -->
-            <section class="filters container section">
-                <div class="filters__header">
-                    <h2 class="section__title">Nuestros Platos</h2>
-                    <div class="filters__controls">
-                        <!-- Categories will be injected here -->
-                        <button class="filter-btn active" data-category="all">Todos</button>
-                        <button class="filter-btn" data-category="Seafood">Mariscos</button>
-                        <button class="filter-btn" data-category="Pasta">Pasta</button>
-                        <button class="filter-btn" data-category="Dessert">Postres</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Products Grid -->
-            <section class="products container" id="productos">
-                <div id="app" class="products__grid">
-                    <!-- Cards will be injected by JS -->
-                    <!-- Loading Skeleton Example -->
-                    <article class="card skeleton">
-                        <div class="skeleton__img"></div>
-                        <div class="skeleton__body">
-                            <div class="skeleton__text skeleton__text--title"></div>
-                            <div class="skeleton__text skeleton__text--price"></div>
-                        </div>
-                    </article>
-                </div>
-            </section>
-        </main>
-
-        <!-- Footer -->
-        <footer class="footer section">
-            <div class="footer__container container">
-                <div class="footer__content">
-                    <a href="#" class="logo footer__logo">
+        <!-- 2. MAIN APP (Authenticated View - Hidden by default) -->
+        <div id="main-app" class="hidden">
+            <!-- Header & Nav -->
+            <header class="header">
+                <div class="header__container container">
+                    <a href="#" class="logo">
+                        <i class="fa-solid fa-snowflake logo__icon"></i>
                         Sabor<span class="logo__highlight">Navideño</span>
                     </a>
-                    <p class="footer__description">Llevando la magia de la cocina a tu mesa desde 2025.</p>
+
+                    <nav class="nav nav__menu" id="nav-menu">
+                        <ul class="nav__list">
+                            <li class="nav__item"><a href="#" class="nav__link active-link">Inicio</a></li>
+                            <li class="nav__item"><a href="#productos" class="nav__link">Productos</a></li>
+                            <li class="nav__item"><a href="#contacto" class="nav__link">Contacto</a></li>
+                        </ul>
+                        <div class="nav__close" id="nav-close">
+                            <i class="fa-solid fa-xmark"></i>
+                        </div>
+                    </nav>
+
+                    <div class="header__actions">
+                        <span id="user-welcome" class="user-name">Hola, Chef</span>
+                        <button class="btn-icon" id="cart-toggle" aria-label="Ver carrito">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span class="cart-badge">0</span>
+                        </button>
+                        <button class="btn-icon" id="logout-btn" title="Cerrar Sesión">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                        <button class="btn-icon nav__toggle" id="nav-toggle" aria-label="Abrir menú">
+                            <i class="fa-solid fa-bars"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="footer__social">
-                    <a href="#" class="footer__social-link"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" class="footer__social-link"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="#" class="footer__social-link"><i class="fa-brands fa-twitter"></i></a>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main">
+                <!-- Hero Section -->
+                <section class="hero">
+                    <div class="hero__content container">
+                        <h1 class="hero__title">Celebra con el mejor <br> <span class="text-gradient">Sabor
+                                Navideño</span>
+                        </h1>
+                        <p class="hero__description">Descubre nuestras recetas exclusivas y productos gourmet para hacer
+                            de
+                            tu cena una noche inolvidable.</p>
+                        <a href="#productos" class="btn btn--primary">Ver Catálogo <i
+                                class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                    <div class="hero__background"></div>
+                </section>
+
+                <!-- Filters Section -->
+                <section class="filters container section">
+                    <div class="filters__header">
+                        <h2 class="section__title">Nuestros Platos</h2>
+                        <div class="filters__controls">
+                            <button class="filter-btn active" data-category="all">Todos</button>
+                            <button class="filter-btn" data-category="Seafood">Mariscos</button>
+                            <button class="filter-btn" data-category="Pasta">Pasta</button>
+                            <button class="filter-btn" data-category="Dessert">Postres</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Products Grid -->
+                <section class="products container" id="productos">
+                    <div id="app" class="products__grid">
+                        <article class="card skeleton">
+                            <div class="skeleton__img"></div>
+                            <div class="skeleton__body">
+                                <div class="skeleton__text skeleton__text--title"></div>
+                                <div class="skeleton__text skeleton__text--price"></div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer section">
+                <div class="footer__container container">
+                    <div class="footer__content">
+                        <a href="#" class="logo footer__logo">
+                            Sabor<span class="logo__highlight">Navideño</span>
+                        </a>
+                        <p class="footer__description">Llevando la magia de la cocina a tu mesa desde 2025.</p>
+                    </div>
+                    <div class="footer__social">
+                        <a href="#" class="footer__social-link"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="footer__social-link"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="footer__social-link"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
                 </div>
-            </div>
-            <p class="footer__copy">&#169; 2026 Proyecto Navidad. Todos los derechos reservados.</p>
-        </footer>
+                <p class="footer__copy">&#169; 2026 Proyecto Navidad. Todos los derechos reservados.</p>
+            </footer>
+        </div>
     </div>
 
     <!-- JS -->
