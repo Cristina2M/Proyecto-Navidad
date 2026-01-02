@@ -122,6 +122,17 @@ img {
     box-shadow: 0 4px 12px hsla(var(--hue), 80%, 45%, .3);
 }
 
+.btn--outline {
+    background-color: transparent;
+    border: 2px solid var(--first-color);
+    color: var(--first-color);
+}
+
+.btn--outline:hover {
+    background-color: var(--first-color);
+    color: #FFF;
+}
+
 .text-gradient {
     background: linear-gradient(90deg, var(--first-color), var(--first-color-alt));
     -webkit-background-clip: text;
