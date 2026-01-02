@@ -5,7 +5,10 @@
     "main": "index.html",
     "scripts": {
         "server": "json-server --watch db.json --port 3000",
-        "dev": "json-server --watch db.json --port 3000"
+        "dev": "json-server --watch db.json --port 3000",
+        "test": "jest",
+        "lint:docs": "jsdoc -t templates/silent assets/js/app.js -d tmp/docs_check",
+        "docs:build": "jsdoc assets/js/app.js -d docs"
     },
     "keywords": [
         "ecommerce",

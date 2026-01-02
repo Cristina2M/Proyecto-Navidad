@@ -53,7 +53,7 @@
         - [x] Hover effects en cards/botones
 
 ## 6. Despliegue (Susana)
-- [ ] **CI/CD**: Configurar GitHub Actions
-- [ ] **Contenedor**: Dockerizar aplicación
-- [ ] **AWS**: Desplegar en instancia EC2
-- [ ] **Documentación**: Ruta `/documentacion`
+- [x] **CI/CD**: Configurar GitHub Actions (1 pto)
+- [x] **Contenedor**: Dockerizar aplicación (securizada) (1 pto)
+- [x] **AWS**: Desplegar en instancia EC2 (1 pto)
+- [x] **Documentación**: Ruta `/documentacion` generada automáticamente (1 pto)

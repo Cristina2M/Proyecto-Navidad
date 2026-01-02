@@ -1,83 +1,90 @@
 /**
- * =========================================================================
- * 🎄 PROYECTO: SABOR NAVIDEÑO - CÓDIGO CORE (app.js) 🎄
- * =========================================================================
- * 
- * ¡Hola! He programado este archivo para que sea el motor de toda mi tienda. 
- * He intentado que todo esté súper ordenado para que si en el futuro quiero 
- * cambiar algo, no me vuelva loca buscando.
- * 
- * He organizado el código en bloques lógicos. ¡Espero que me sirva de guía!
+ * @file app.js
+ * @description Motor principal de la tienda "Sabor Navideño". Gestiona el catálogo, 
+ * el carrito de compras, la autenticación y la integración con EmailJS.
+ * @author Cristina & Sergio (Core Team)
+ * @version 1.5.0
  */
 
+/**
+ * @typedef {Object} Producto
+ * @property {string} idMeal - ID único del plato
+ * @property {string} strMeal - Nombre del plato
+ * @property {string} strMealThumb - URL de la imagen del plato
+ * @property {number} [cantidad] - Cantidad en el carrito
+ * @property {number} [precio] - Precio calculado
+ */
+
+/**
+ * @typedef {Object} Usuario
+ * @property {string} nombre - Nombre real
+ * @property {string} username - Nombre de usuario
+ * @property {string} email - Correo electrónico
+ */
+
+/**
+ * @namespace Estado
+ * @description Almacena la memoria volátil y persistente de la aplicación.
+ */
+const estado = {
+    /** @type {Usuario|null} */
+    usuario: null,
+    /** @type {Array} */
+    categorias: [],
+    /** @type {Producto[]} */
+    todosLosProductos: [],
+    /** @type {Producto[]} */
+    productosVisibles: [],
+    /** @type {Producto[]} */
+    carrito: JSON.parse(localStorage.getItem('carrito')) || [],
+    /** @type {number} */
+    captchaEsperado: 0,
+    /** @type {string} */
+    categoriaActual: 'all',
+    /** @type {boolean} */
+    cargando: false,
+    /** @type {number} */
+    indiceActual: 0,
+    /** @type {number} */
+    itemsIniciales: 6,
+    /** @type {number} */
+    itemsPorPagina: 3,
+    /** @type {boolean} */
+    modoBoton: false,
+};
+
 // ==========================================
-// 1. CONFIGURACIÓN Y DIRECCIONES (API)
+// 1. CONFIGURACIÓN Y APIS
 // ==========================================
 
-// Aquí guardo las direcciones de donde saco la comida. 
-// Si la API de TheMealDB cambia, solo tendría que tocar esto.
 const URL_BASE_API = 'https://www.themealdb.com/api/json/v1/1';
 const ENDPOINT_CATEGORIAS = '/categories.php';
 const ENDPOINT_FILTRO = '/filter.php?c=';
 const ENDPOINT_RANDOM = '/random.php';
-
-// Dirección de mi "servidor" local para los usuarios.
-// ¡OJO!: Recuerda que tengo que tener el comando 'npm run server' activo.
 const URL_JSON_SERVER = 'http://localhost:3000';
 
-/**
- * DATOS DE EMAILJS
- * Estas son las llaves para que los correos me lleguen a mí.
- * TIP FUTURO: Si cambio de cuenta de correo, cambio estos IDs de aquí abajo.
- */
 const EMAILJS_PUBLIC_KEY = 'IAQlDtLB8I4gvNOSC';
 const EMAILJS_SERVICE_ID = 'service_h6gqoor';
 const EMAILJS_TEMPLATE_ID = 'template_nzh1gkb';
 
-// ==========================================
-// 2. EL ESTADO DE LA WEB (La Memoria)
-// ==========================================
-
-// He creado este objeto 'estado' para que la web "sepa" en todo momento qué está pasando.
-const estado = {
-    usuario: null,           // Aquí guardaré quién ha hecho login.
-    categorias: [],          // Aquí guardo las categorías (Pescado, Postres...).
-    todosLosProductos: [],   // Todos los platos que he bajado de la red.
-    productosVisibles: [],   // Solo los que estoy enseñando ahora mismo.
-    carrito: JSON.parse(localStorage.getItem('carrito')) || [], // Recupero el carrito si cerré la pestaña.
-    captchaEsperado: 0,      // El resultado de la suma del login.
-    categoriaActual: 'all',  // Qué filtro tengo puesto.
-    cargando: false,         // Para que no se vuelva loco cargando mil cosas a la vez.
-    indiceActual: 0,         // Para saber cuántos platos llevo cargados.
-    itemsIniciales: 6,       // Empiezo enseñando 6 platos.
-    itemsPorPagina: 3,       // Al bajar o dar al botón, cargo 3 más.
-    modoBoton: false,        // Si es móvil, sale el botón de "Cargar más".
-};
-
-// Objeto vacío que llenaré con todas las "piezas" del HTML (IDs).
 let elementos = {};
 
 /**
- * Función que "atrapa" todos los IDs de mi HTML. 
- * La llamo al principio para tenerlo todo a mano.
+ * Captura y almacena las referencias a los elementos del DOM.
+ * @function capturarElementos
  */
 function capturarElementos() {
     elementos = {
-        // Contenedores grandes
         app: document.getElementById('app'),
         badgeCarrito: document.querySelector('.cart-badge'),
         landing: document.getElementById('landing-page'),
         mainApp: document.getElementById('main-app'),
-
-        // Login y Registro
         userWelcome: document.getElementById('user-welcome'),
         loginForm: document.getElementById('login-form'),
         registerForm: document.getElementById('register-form'),
         logoutBtn: document.getElementById('logout-btn'),
         captchaLabel: document.getElementById('captcha-label'),
         captchaInput: document.getElementById('login-captcha'),
-
-        // Galería y Navegación
         galleryGrid: document.querySelector('.gallery__grid'),
         navToggle: document.getElementById('nav-toggle'),
         navMenu: document.getElementById('nav-menu'),
@@ -87,18 +94,12 @@ function capturarElementos() {
         navProducts: document.getElementById('nav-products'),
         cartBtn: document.getElementById('cart-btn'),
         heroCta: document.getElementById('hero-cta'),
-
-        // Ventana de detalle (Modal)
         modal: document.getElementById('product-modal'),
         modalBody: document.getElementById('modal-body'),
         modalClose: document.getElementById('modal-close'),
         modalOverlay: document.getElementById('modal-overlay'),
-
-        // Vistas de la App
         catalogView: document.getElementById('catalog-view'),
         cartView: document.getElementById('cart-view'),
-
-        // Carrito
         cartFullList: document.getElementById('cart-full-list'),
         summarySubtotal: document.getElementById('summary-subtotal'),
         summaryTotal: document.getElementById('summary-total'),
@@ -109,16 +110,16 @@ function capturarElementos() {
 }
 
 // ==========================================
-// 3. SEGURIDAD Y ENTRADA (Auth)
+// 3. AUTENTICACIÓN Y SEGURIDAD
 // ==========================================
 
 /**
- * Mira si ya estaba dentro antes de recargar. 
- * Si encuentro mi sesión, entro directo al catálogo.
+ * Inicializa el sistema de autenticación comprobando la sesión local.
+ * @function inicializarAuth
  */
 function inicializarAuth() {
     const sesion = localStorage.getItem('usuario_sesion');
-    configurarEventosAuth(); // Activo los botones de los formularios.
+    configurarEventosAuth();
 
     if (sesion) {
         estado.usuario = JSON.parse(sesion);
@@ -129,8 +130,8 @@ function inicializarAuth() {
 }
 
 /**
- * CAPTCHA Navideño: Genero una suma aleatoria para evitar bots.
- * TIP FUTURO: Si quiero que sea más difícil, puedo multiplicar los números en vez de sumar.
+ * Genera un desafío matemático aleatorio para el login.
+ * @function generarCaptcha
  */
 function generarCaptcha() {
     if (!elementos.captchaLabel) return;
@@ -141,7 +142,8 @@ function generarCaptcha() {
 }
 
 /**
- * Configuro los botones de "Login" y "Registro" para que cambien de pestañas.
+ * Configura los escuchadores de eventos para los formularios de acceso.
+ * @function configurarEventosAuth
  */
 function configurarEventosAuth() {
     const tabs = document.querySelectorAll('.auth__tab');
@@ -160,14 +162,16 @@ function configurarEventosAuth() {
         });
     });
 
-    // Activo el botón de enviar
     elementos.loginForm?.addEventListener('submit', manejarLogin);
     elementos.registerForm?.addEventListener('submit', manejarRegistro);
     elementos.logoutBtn?.addEventListener('click', manejarLogout);
 }
 
 /**
- * Lógica al pulsar "Entrar". Compruebo captcha y busco al usuario en mi DB.
+ * Procesa el intento de inicio de sesión.
+ * @async
+ * @function manejarLogin
+ * @param {Event} e - Evento de formulario
  */
 async function manejarLogin(e) {
     e.preventDefault();
@@ -176,7 +180,6 @@ async function manejarLogin(e) {
     const captchaValue = parseInt(elementos.captchaInput.value);
     const errorMsg = document.getElementById('login-error');
 
-    // Valido el captcha primero
     if (captchaValue !== estado.captchaEsperado) {
         errorMsg.textContent = '¡Ups! La suma no es correcta. Inténtalo de nuevo.';
         errorMsg.classList.remove('hidden');
@@ -206,7 +209,10 @@ async function manejarLogin(e) {
 }
 
 /**
- * Lógica de registro. Guardo los datos del nuevo usuario en db.json.
+ * Registra un nuevo usuario en el sistema.
+ * @async
+ * @function manejarRegistro
+ * @param {Event} e - Evento de formulario
  */
 async function manejarRegistro(e) {
     e.preventDefault();
@@ -220,7 +226,6 @@ async function manejarRegistro(e) {
     };
 
     try {
-        // Comprobar si el nombre ya está cogido
         const checkRes = await fetch(`${URL_JSON_SERVER}/users?username=${nuevoUsuario.username}`);
         const existe = await checkRes.json();
         if (existe.length > 0) {
@@ -236,33 +241,37 @@ async function manejarRegistro(e) {
 
         if (res.ok) {
             alert('¡Cuenta creada con éxito! Ya puedes entrar.');
-            document.querySelector('[data-target="login"]').click(); // Le mando a la pestaña de entrar
+            document.querySelector('[data-target="login"]').click();
         }
     } catch (error) {
         console.error('Error registro:', error);
     }
 }
 
+/**
+ * Cierra la sesión activa y limpia los datos locales.
+ * @function manejarLogout
+ */
 function manejarLogout() {
     estado.usuario = null;
     localStorage.removeItem('usuario_sesion');
-    if (elementos.app) elementos.app.innerHTML = ''; // Limpio el catálogo.
+    if (elementos.app) elementos.app.innerHTML = '';
     cambiarVista('landing');
 }
 
 // ==========================================
-// 4. LA GALERÍA ABSTRACTA (Portada)
+// 4. GALERÍA LANDING
 // ==========================================
 
 /**
- * Traigo 10 platos de comida al azar para que la portada quede bonita.
- * He configurado la galería para que tenga formas raras y rotaciones artísticas.
+ * Carga imágenes aleatorias para la galería de la página de aterrizaje.
+ * @async
+ * @function cargarGaleriaAleatoria
  */
 async function cargarGaleriaAleatoria() {
     if (!elementos.galleryGrid) return;
     elementos.galleryGrid.innerHTML = '<div class="gallery__loading">Cargando inspiración navideña...</div>';
 
-    // Pido las 10 fotos a la vez para ir más rápido.
     const promesas = Array.from({ length: 10 }, () =>
         fetch(`${URL_BASE_API}${ENDPOINT_RANDOM}`).then(r => r.json())
     );
@@ -284,11 +293,13 @@ async function cargarGaleriaAleatoria() {
 }
 
 // ==========================================
-// 5. NAVEGACIÓN Y CAMBIO DE SECCIONES
+// 5. NAVEGACIÓN Y VISTAS
 // ==========================================
 
 /**
- * Controla si se ve la portada (Landing) o la zona de compras (App).
+ * Cambia entre la vista de aterrizaje y la aplicación principal.
+ * @function cambiarVista
+ * @param {string} vista - Nombre de la vista ('app'|'landing')
  */
 function cambiarVista(vista) {
     capturarElementos();
@@ -310,7 +321,10 @@ function cambiarVista(vista) {
 }
 
 /**
- * Cambia entre el Catálogo de platos y el Carrito Completo.
+ * Cambia la sub-vista dentro de la aplicación principal.
+ * @function cambiarVistaApp
+ * @param {string} vista - Sub-vista ('catalog'|'cart')
+ * @param {string|null} [destino] - ID del elemento para scroll
  */
 function cambiarVistaApp(vista, destino = null) {
     if (vista === 'cart') {
@@ -321,7 +335,6 @@ function cambiarVistaApp(vista, destino = null) {
     } else {
         elementos.catalogView?.classList.remove('hidden');
         elementos.cartView?.classList.add('hidden');
-        // Si quiero ir a una sección concreta (ej: Nuestros Platos)
         if (destino) {
             const el = document.getElementById(destino);
             setTimeout(() => el?.scrollIntoView({ behavior: 'smooth' }), 10);
@@ -332,7 +345,8 @@ function cambiarVistaApp(vista, destino = null) {
 }
 
 /**
- * Activo los botones del menú móvil, el logo, etc.
+ * Inyecta los eventos de navegación y clicks globales.
+ * @function inyectarNavEventos
  */
 function inyectarNavEventos() {
     elementos.navToggle?.addEventListener('click', () => elementos.navMenu.classList.add('show-menu'));
@@ -340,7 +354,6 @@ function inyectarNavEventos() {
     elementos.modalClose?.addEventListener('click', cerrarModal);
     elementos.modalOverlay?.addEventListener('click', cerrarModal);
 
-    // Enlaces de la barra de navegación
     elementos.logoNav?.addEventListener('click', (e) => { e.preventDefault(); cambiarVistaApp('catalog'); });
     elementos.navHome?.addEventListener('click', (e) => { e.preventDefault(); cambiarVistaApp('catalog'); });
     elementos.navProducts?.addEventListener('click', (e) => { e.preventDefault(); cambiarVistaApp('catalog', 'nuestros-platos'); });
@@ -351,18 +364,20 @@ function inyectarNavEventos() {
 }
 
 // ==========================================
-// 6. CATÁLOGO DE PRODUCTOS (Lógica de Ventas)
+// 6. PRODUCTOS Y FILTROS
 // ==========================================
 
 /**
- * Cuando entro a la tienda, cargo las categorías y preparo los productos.
+ * Inicializa el contenido del catálogo y carga los filtros.
+ * @async
+ * @function cargarContenidoApp
  */
 async function cargarContenidoApp() {
     actualizarConfiguracion();
     try {
         await obtenerCategorias();
-        await obtenerProductos('Seafood'); // Empiezo enseñando Mariscos que es muy navideño.
-        window.addEventListener('scroll', manejarScroll); // Activo el scroll infinito.
+        await obtenerProductos('Seafood');
+        window.addEventListener('scroll', manejarScroll);
         conectarFiltros();
         conectarOrdenacion();
         actualizarCarritoUI();
@@ -372,8 +387,8 @@ async function cargarContenidoApp() {
 }
 
 /**
- * Responsive: Si estoy en móvil cargo menos cosas que en PC.
- * TIP FUTURO: Si añado pantallas intermedias, aquí añado más 'breakpoints'.
+ * Ajusta la configuración de carga según el tamaño de la ventana.
+ * @function actualizarConfiguracion
  */
 function actualizarConfiguracion() {
     const ancho = window.innerWidth;
@@ -386,6 +401,11 @@ function actualizarConfiguracion() {
     }
 }
 
+/**
+ * Obtiene las categorías de platos desde la API.
+ * @async
+ * @function obtenerCategorias
+ */
 async function obtenerCategorias() {
     try {
         const res = await fetch(`${URL_BASE_API}${ENDPOINT_CATEGORIAS}`);
@@ -395,8 +415,10 @@ async function obtenerCategorias() {
 }
 
 /**
- * Trae los platos de la categoría de la red.
- * Si elijo "Todos", mezclo platos de varias categorías.
+ * Obtiene los productos filtrados por una categoría específica.
+ * @async
+ * @function obtenerProductos
+ * @param {string} categoria - Nombre de la categoría
  */
 async function obtenerProductos(categoria) {
     estado.cargando = true;
@@ -408,7 +430,7 @@ async function obtenerProductos(categoria) {
     try {
         let listaFinal = [];
         if (categoria === 'all') {
-            const cats = ['Seafood', 'Pasta', 'Dessert']; // Estas son mis categorías favoritas.
+            const cats = ['Seafood', 'Pasta', 'Dessert'];
             const promesas = cats.map(c => fetch(`${URL_BASE_API}${ENDPOINT_FILTRO}${c}`).then(r => r.json()));
             const resultados = await Promise.all(promesas);
             resultados.forEach(d => { if (d.meals) listaFinal = [...listaFinal, ...d.meals]; });
@@ -423,7 +445,9 @@ async function obtenerProductos(categoria) {
 }
 
 /**
- * PAGINACIÓN: Va enseñando platos de 3 en 3 (o los que toque).
+ * Carga el siguiente segmento de productos en el catálogo.
+ * @function cargarSiguienteBloque
+ * @param {number} cantidad - Número de items a cargar
  */
 function cargarSiguienteBloque(cantidad) {
     if (estado.indiceActual >= estado.todosLosProductos.length) {
@@ -437,8 +461,9 @@ function cargarSiguienteBloque(cantidad) {
 }
 
 /**
- * Dibuja el HTML de cada plato en la pantalla.
- * He simulado el precio usando el ID del plato para que cada uno sea diferente.
+ * Renderiza un bloque de productos en el contenedor principal.
+ * @function renderizarBloque
+ * @param {Producto[]} lista - Lista de productos a dibujar
  */
 function renderizarBloque(lista) {
     if (!elementos.app) return;
@@ -455,6 +480,10 @@ function renderizarBloque(lista) {
     elementos.app.insertAdjacentHTML('beforeend', html);
 }
 
+/**
+ * Establece los listeners para los botones de filtrado.
+ * @function conectarFiltros
+ */
 function conectarFiltros() {
     const botones = document.querySelectorAll('.filter-btn');
     botones.forEach(btn => {
@@ -466,12 +495,18 @@ function conectarFiltros() {
     });
 }
 
+/**
+ * Conecta el selector de ordenación con su lógica correspondiente.
+ * @function conectarOrdenacion
+ */
 function conectarOrdenacion() {
     elementos.sortSelect?.addEventListener('change', (e) => ordenarProductos(e.target.value));
 }
 
 /**
- * Ordeno la lista en memoria para no tener que volver a llamar a la API.
+ * Ordena el catálogo actual basándose en diferentes criterios.
+ * @function ordenarProductos
+ * @param {string} criterio - Criterio de ordenación ('price-asc'|'price-desc'|'name-az')
  */
 function ordenarProductos(criterio) {
     if (!estado.todosLosProductos.length) return;
@@ -485,25 +520,24 @@ function ordenarProductos(criterio) {
 }
 
 // ==========================================
-// 7. CARGA POR SCROLL E INFINITE LOAD
+// 7. SCROLL E INFINITE LOAD
 // ==========================================
 
 /**
- * Detecta cuando el usuario está llegando al final de la página.
+ * Gestiona la carga automática de productos al hacer scroll.
+ * @function manejarScroll
  */
 function manejarScroll() {
-    // Si estoy usando el botón de móvil, ignoro el scroll.
     if (estado.modoBoton || estado.cargando || estado.indiceActual >= estado.todosLosProductos.length) return;
-
     const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
-    // Si estoy a 100px del final, cargo el siguiente bloque.
     if (scrollTop + clientHeight >= scrollHeight - 100) {
         cargarSiguienteBloque(estado.itemsPorPagina);
     }
 }
 
 /**
- * En móviles me gusta más poner un botón que scrollear infinitamente.
+ * Crea e inyecta el botón "Cargar más" para versiones móviles.
+ * @function gestionarBotonCargarMas
  */
 function gestionarBotonCargarMas() {
     eliminarBotonCargarMas();
@@ -516,6 +550,10 @@ function gestionarBotonCargarMas() {
     }
 }
 
+/**
+ * Elimina el contenedor del botón "Cargar más" si existe.
+ * @function eliminarBotonCargarMas
+ */
 function eliminarBotonCargarMas() {
     document.querySelector('.load-more-container')?.remove();
 }
@@ -525,7 +563,9 @@ function eliminarBotonCargarMas() {
 // ==========================================
 
 /**
- * Añado una unidad al carrito. Si ya está, solo subo el contador.
+ * Añade un producto al carrito de compras.
+ * @function agregarAlCarrito
+ * @param {string} id - ID del producto a añadir
  */
 function agregarAlCarrito(id) {
     const plato = estado.todosLosProductos.find(p => p.idMeal === id);
@@ -536,17 +576,18 @@ function agregarAlCarrito(id) {
 
     guardarCarrito();
     actualizarCarritoUI();
-    // Si estoy viendo el carrito, lo redibujo para que se vea el cambio
     if (!elementos.cartView.classList.contains('hidden')) renderizarCarrito();
 }
 
 /**
- * LocalStorage: Guardo el carrito en el navegador.
+ * Persiste el estado del carrito en LocalStorage.
+ * @function guardarCarrito
  */
 function guardarCarrito() { localStorage.setItem('carrito', JSON.stringify(estado.carrito)); }
 
 /**
- * Actualiza el numerito rojo que sale encima del carrito.
+ * Actualiza el contador visual de items en el carrito.
+ * @function actualizarCarritoUI
  */
 function actualizarCarritoUI() {
     if (elementos.badgeCarrito) {
@@ -555,7 +596,8 @@ function actualizarCarritoUI() {
 }
 
 /**
- * Dibuja la lista de productos del carrito con sus fotos y botones de borrar.
+ * Renderiza la lista detallada de productos en la vista de carrito.
+ * @function renderizarCarrito
  */
 function renderizarCarrito() {
     if (!elementos.cartFullList) return;
@@ -585,11 +627,22 @@ function renderizarCarrito() {
     elementos.summaryTotal.textContent = `$${total.toFixed(2)}`;
 }
 
+/**
+ * Elimina todas las unidades de un producto específico del carrito.
+ * @function eliminarDelCarrito
+ * @param {string} id - ID del producto
+ */
 function eliminarDelCarrito(id) {
     estado.carrito = estado.carrito.filter(i => i.idMeal !== id);
     guardarCarrito(); actualizarCarritoUI(); renderizarCarrito();
 }
 
+/**
+ * Incrementa o decrementa la cantidad de un item en el carrito.
+ * @function cambiarCantidad
+ * @param {string} id - ID del producto
+ * @param {number} delta - Cambio (+1 o -1)
+ */
 function cambiarCantidad(id, delta) {
     const item = estado.carrito.find(i => i.idMeal === id);
     if (item) {
@@ -600,7 +653,9 @@ function cambiarCantidad(id, delta) {
 }
 
 /**
- * EL MOMENTO FINAL: Enviar el email real con los datos de la compra.
+ * Simula el proceso de checkout y envía una confirmación vía EmailJS.
+ * @async
+ * @function simularCheckout
  */
 async function simularCheckout() {
     if (estado.carrito.length === 0) return;
@@ -608,9 +663,8 @@ async function simularCheckout() {
     btn.disabled = true; btn.textContent = 'Procesando pedido... ❄️';
 
     const total = estado.carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-    const orderId = "SN-" + Math.floor(Math.random() * 100000); // Genero un código de pedido.
+    const orderId = "SN-" + Math.floor(Math.random() * 100000);
 
-    // Mapeo los datos tal cual los espera mi plantilla de EmailJS.
     const templateParams = {
         order_id: orderId,
         email: estado.usuario.email,
@@ -630,7 +684,7 @@ async function simularCheckout() {
     } catch (e) {
         console.error(e);
         alert('Ha habido un pequeño error con el email, pero tu pedido está en camino.');
-        estado.carrito = []; // Limpio igual por buena experiencia de usuario.
+        estado.carrito = [];
         guardarCarrito();
         actualizarCarritoUI();
         cambiarVistaApp('catalog');
@@ -642,24 +696,26 @@ async function simularCheckout() {
 }
 
 // ==========================================
-// 9. EL MODAL (Vistazo rápido con recetas)
+// 9. DETALLES PLATO (Modal)
 // ==========================================
 
 /**
- * Cuando pincho en un plato, pido todos los detalles (ingredientes, preparación).
+ * Abre el modal de detalles para un plato específico cargando datos de la API.
+ * @async
+ * @function abrirModal
+ * @param {string} id - ID del plato a mostrar
  */
 async function abrirModal(id) {
     if (!elementos.modal) return;
     elementos.modalBody.innerHTML = '<div class="skeleton" style="height:300px"></div>';
     elementos.modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden'; // Evito que scrollee el fondo.
+    document.body.style.overflow = 'hidden';
 
     try {
         const res = await fetch(`${URL_BASE_API}/lookup.php?i=${id}`);
         const data = await res.json();
         const meal = data.meals[0];
 
-        // La API da los ingredientes por separado. Los recojo todos aquí.
         const ingredientes = [];
         for (let i = 1; i <= 20; i++) {
             const ing = meal[`strIngredient${i}`], med = meal[`strMeasure${i}`];
@@ -681,38 +737,48 @@ async function abrirModal(id) {
     }
 }
 
+/**
+ * Cierra el modal de detalles del producto.
+ * @function cerrarModal
+ */
 function cerrarModal() { elementos.modal?.classList.add('hidden'); document.body.style.overflow = 'auto'; }
 
 // ==========================================
-// 10. ARRANQUE DEL SISTEMA
+// 10. INICIO
 // ==========================================
 
 /**
- * Función que lo inicia todo en orden.
+ * Orquestador principal de inicio de la aplicación.
+ * @async
+ * @function iniciar
  */
 async function iniciar() {
     capturarElementos();
     actualizarConfiguracion();
 
-    // Si la librería EmailJS está cargada, la inicio.
     if (typeof emailjs !== 'undefined') emailjs.init(EMAILJS_PUBLIC_KEY);
 
-    inicializarAuth(); // ¿Quién eres?
-    inyectarNavEventos(); // Activo los botones.
+    inicializarAuth();
+    inyectarNavEventos();
 
-    // Recalculo si se gira la pantalla.
     window.addEventListener('resize', actualizarConfiguracion);
 }
 
-// ¡Que empiece la Navidad!
 document.addEventListener('DOMContentLoaded', iniciar);
 
-/**
- * ACCESSO GLOBAL
- * Hago que estas funciones sean visibles desde el HTML.
- */
+// Exportación para interactividad global (onclick en HTML)
 window.cambiarCantidad = cambiarCantidad;
 window.eliminarDelCarrito = eliminarDelCarrito;
 window.agregarAlCarrito = agregarAlCarrito;
 window.cerrarModal = cerrarModal;
 window.cambiarVistaApp = cambiarVistaApp;
+
+// Exportación para tests (CommonJS)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        estado,
+        agregarAlCarrito,
+        eliminarDelCarrito,
+        cambiarCantidad
+    };
+}
