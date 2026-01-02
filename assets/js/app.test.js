@@ -5,10 +5,18 @@ global.localStorage = {
     clear: jest.fn()
 };
 
-// Mock DOM elements
+// Mock DOM elements ANTES de cargar app.js
 global.document = {
     getElementById: jest.fn().mockReturnValue({}),
-    querySelector: jest.fn().mockReturnValue({})
+    querySelector: jest.fn().mockReturnValue({}),
+    addEventListener: jest.fn()
+};
+
+global.window = {
+    addEventListener: jest.fn(),
+    scrollTo: jest.fn(),
+    innerWidth: 1024,
+    localStorage: global.localStorage
 };
 
 const { estado, agregarAlCarrito, eliminarDelCarrito } = require('./app');
