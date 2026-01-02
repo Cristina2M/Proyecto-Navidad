@@ -50,6 +50,27 @@ function capturarElementos() {
         navToggle: document.getElementById('nav-toggle'),
         navMenu: document.getElementById('nav-menu'),
         navClose: document.getElementById('nav-close'),
+        modal: document.getElementById('product-modal'),
+        modalBody: document.getElementById('modal-body'),
+        modalClose: document.getElementById('modal-close'),
+        modalOverlay: document.getElementById('modal-overlay'),
+
+        // Vistas principales
+        catalogView: document.getElementById('catalog-view'),
+        cartView: document.getElementById('cart-view'),
+
+        // Nav e Interacciones
+        logoNav: document.getElementById('logo-nav'),
+        navHome: document.getElementById('nav-home'),
+        navProducts: document.getElementById('nav-products'),
+        cartBtn: document.getElementById('cart-btn'),
+
+        // Contenedores del Carrito View
+        cartFullList: document.getElementById('cart-full-list'),
+        summarySubtotal: document.getElementById('summary-subtotal'),
+        summaryTotal: document.getElementById('summary-total'),
+        checkoutFinalBtn: document.getElementById('checkout-final-btn'),
+        continueShopping: document.getElementById('continue-shopping'),
     };
 
     // Debug para saber qué está fallando
@@ -261,6 +282,13 @@ async function iniciar() {
     // 3. Conectamos la navegación
     inyectarNavEventos();
 
+    // 4. Cargamos el carrito desde localStorage
+    const carritoGuardado = localStorage.getItem('carrito');
+    if (carritoGuardado) {
+        estado.carrito = JSON.parse(carritoGuardado);
+        actualizarCarritoUI();
+    }
+
     // Si cambian el tamaño de la ventana, recalculamos
     window.addEventListener('resize', actualizarConfiguracion);
 }
@@ -280,6 +308,60 @@ function inyectarNavEventos() {
             elementos.navMenu.classList.remove('show-menu');
         });
     }
+
+    // Eventos del Modal
+    if (elementos.modalClose) {
+        elementos.modalClose.addEventListener('click', cerrarModal);
+    }
+    if (elementos.modalOverlay) {
+        elementos.modalOverlay.addEventListener('click', cerrarModal);
+    }
+
+    // Navegación entre Vistas (Catalog vs Cart)
+    if (elementos.logoNav) elementos.logoNav.addEventListener('click', (e) => {
+        e.preventDefault();
+        cambiarVistaApp('catalog');
+    });
+    if (elementos.navHome) elementos.navHome.addEventListener('click', (e) => {
+        e.preventDefault();
+        cambiarVistaApp('catalog');
+    });
+    if (elementos.navProducts) elementos.navProducts.addEventListener('click', (e) => {
+        e.preventDefault();
+        cambiarVistaApp('catalog');
+    });
+    if (elementos.cartBtn) elementos.cartBtn.addEventListener('click', () => {
+        cambiarVistaApp('cart');
+    });
+    if (elementos.continueShopping) elementos.continueShopping.addEventListener('click', () => {
+        cambiarVistaApp('catalog');
+    });
+    if (elementos.checkoutFinalBtn) elementos.checkoutFinalBtn.addEventListener('click', simularCheckout);
+}
+
+/**
+ * Alterna entre la vista de catálogo y la vista de carrito completo
+ */
+function cambiarVistaApp(vista) {
+    if (vista === 'cart') {
+        if (elementos.catalogView) elementos.catalogView.classList.add('hidden');
+        if (elementos.cartView) elementos.cartView.classList.remove('hidden');
+
+        // Marcamos el link activo
+        if (elementos.navHome) elementos.navHome.classList.remove('active-link');
+
+        renderizarCarrito();
+        window.scrollTo(0, 0);
+    } else {
+        if (elementos.catalogView) elementos.catalogView.classList.remove('hidden');
+        if (elementos.cartView) elementos.cartView.classList.add('hidden');
+
+        if (elementos.navHome) elementos.navHome.classList.add('active-link');
+        window.scrollTo(0, 0);
+    }
+
+    // Cerramos menú móvil por si acaso
+    if (elementos.navMenu) elementos.navMenu.classList.remove('show-menu');
 }
 
 /**
@@ -303,6 +385,7 @@ async function cargarContenidoApp() {
         // ¡Importante! Conectamos los filtros y ordenación ahora que la app es visible
         conectarFiltros();
         conectarOrdenacion();
+        actualizarCarritoUI(); // Aseguramos que el badge del carrito esté actualizado
     } catch (error) {
         console.error('Error cargando contenido:', error);
     }
@@ -470,12 +553,12 @@ function renderizarBloque(listaProductos) {
     if (!elementos.app) return;
 
     const htmlBloque = listaProductos.map(producto => `
-        <article class="card fade-in">
+        <article class="card fade-in" onclick="abrirModal('${producto.idMeal}')">
             <img src="${producto.strMealThumb}" alt="${producto.strMeal}" class="card__image">
             <div class="card__data">
                 <h3 class="card__title">${producto.strMeal}</h3>
                 <span class="card__price">$${(producto.idMeal / 1000).toFixed(2)}</span>
-                <button class="btn btn--primary" onclick="agregarAlCarrito('${producto.idMeal}')">Añadir</button>
+                <button class="btn btn--primary" onclick="event.stopPropagation(); agregarAlCarrito('${producto.idMeal}')">Añadir</button>
             </div>
         </article>
     `).join('');
@@ -483,20 +566,182 @@ function renderizarBloque(listaProductos) {
     elementos.app.insertAdjacentHTML('beforeend', htmlBloque);
 }
 
-// --- Carrito de Compra (Básico) ---
+// --- Carrito de Compra ---
 
 function agregarAlCarrito(idProducto) {
-    const producto = estado.todosLosProductos.find(p => p.idMeal === idProducto);
-    if (producto) {
-        estado.carrito.push(producto);
-        actualizarCarritoUI();
-        alert(`¡${producto.strMeal} añadido al carrito!`);
+    const plato = estado.todosLosProductos.find(p => p.idMeal === idProducto);
+    if (!plato) return;
+
+    // Buscamos si ya está en el carrito
+    const itemExistente = estado.carrito.find(item => item.idMeal === idProducto);
+
+    if (itemExistente) {
+        itemExistente.cantidad++;
+    } else {
+        estado.carrito.push({
+            ...plato,
+            cantidad: 1,
+            precio: parseFloat((plato.idMeal / 1000).toFixed(2))
+        });
     }
+
+    guardarCarrito();
+    actualizarCarritoUI();
+
+    // Si estamos en la vista de carrito, refrescamos
+    if (elementos.cartView && !elementos.cartView.classList.contains('hidden')) {
+        renderizarCarrito();
+    }
+}
+
+function eliminarDelCarrito(idProducto) {
+    estado.carrito = estado.carrito.filter(item => item.idMeal !== idProducto);
+    guardarCarrito();
+    actualizarCarritoUI();
+    renderizarCarrito();
+}
+
+function cambiarCantidad(idProducto, delta) {
+    const item = estado.carrito.find(item => item.idMeal === idProducto);
+    if (!item) return;
+
+    item.cantidad += delta;
+
+    if (item.cantidad <= 0) {
+        eliminarDelCarrito(idProducto);
+    } else {
+        guardarCarrito();
+        actualizarCarritoUI();
+        renderizarCarrito();
+    }
+}
+
+function guardarCarrito() {
+    localStorage.setItem('carrito', JSON.stringify(estado.carrito));
 }
 
 function actualizarCarritoUI() {
     if (elementos.badgeCarrito) {
-        elementos.badgeCarrito.textContent = estado.carrito.length;
+        const totalItems = estado.carrito.reduce((acc, item) => acc + item.cantidad, 0);
+        elementos.badgeCarrito.textContent = totalItems;
+    }
+}
+
+function renderizarCarrito() {
+    if (!elementos.cartFullList) return;
+
+    if (estado.carrito.length === 0) {
+        elementos.cartFullList.innerHTML = `
+            <div class="cart-empty">
+                <i class="fa-solid fa-cart-flatbed cart-empty__icon"></i>
+                <p>Tu carrito está vacío. ¡Vuelve al catálogo para buscar algo rico!</p>
+                <button class="btn btn--primary" style="margin-top: 1rem;" onclick="cambiarVistaApp('catalog')">Ir a la Tienda</button>
+            </div>
+        `;
+        elementos.summarySubtotal.textContent = '$0.00';
+        elementos.summaryTotal.textContent = '$0.00';
+        return;
+    }
+
+    let total = 0;
+    elementos.cartFullList.innerHTML = estado.carrito.map(item => {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+
+        return `
+            <div class="cart-item fade-in">
+                <img src="${item.strMealThumb}" alt="${item.strMeal}" class="cart-item__img">
+                <div class="cart-item__info">
+                    <h3 class="cart-item__title">${item.strMeal}</h3>
+                    <span class="cart-item__category">Plato Tradicional</span>
+                </div>
+                <div class="cart-item__price-box">
+                    <span class="cart-item__price">$${item.precio.toFixed(2)}</span>
+                    <div class="cart-item__qty-box">
+                        <button class="cart-item__btn" onclick="cambiarCantidad('${item.idMeal}', -1)">-</button>
+                        <span class="cart-item__qty">${item.cantidad}</span>
+                        <button class="cart-item__btn" onclick="cambiarCantidad('${item.idMeal}', 1)">+</button>
+                    </div>
+                </div>
+                <i class="fa-solid fa-trash-can cart-item__del" onclick="eliminarDelCarrito('${item.idMeal}')"></i>
+            </div>
+        `;
+    }).join('');
+
+    elementos.summarySubtotal.textContent = `$${total.toFixed(2)}`;
+    elementos.summaryTotal.textContent = `$${total.toFixed(2)}`;
+}
+
+function simularCheckout() {
+    if (estado.carrito.length === 0) return;
+
+    alert('¡Gracias por tu pedido! La magia de la cocina navideña está en camino. 🎁🍗');
+
+    estado.carrito = [];
+    guardarCarrito();
+    actualizarCarritoUI();
+    cambiarVistaApp('catalog');
+}
+
+// --- Modal de Detalles ---
+
+async function abrirModal(id) {
+    console.log(`Abriendo detalles del plato: ${id}`);
+    if (!elementos.modal || !elementos.modalBody) return;
+
+    // Mostramos modal con loading
+    elementos.modalBody.innerHTML = '<div class="skeleton" style="height: 300px; width: 100%;"></div>';
+    elementos.modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Bloquear scroll fondo
+
+    try {
+        const res = await fetch(`${URL_BASE_API}/lookup.php?i=${id}`);
+        const data = await res.json();
+        const meal = data.meals[0];
+
+        renderizarDetalle(meal);
+    } catch (error) {
+        console.error('Error al cargar detalle:', error);
+        elementos.modalBody.innerHTML = '<p>Lo sentimos, no hemos podido cargar los detalles.</p>';
+    }
+}
+
+function renderizarDetalle(meal) {
+    // Extraer ingredientes (la API los da por separado del 1 al 20)
+    const ingredientes = [];
+    for (let i = 1; i <= 20; i++) {
+        const ing = meal[`strIngredient${i}`];
+        const med = meal[`strMeasure${i}`];
+        if (ing && ing.trim()) {
+            ingredientes.push(`${med} ${ing}`);
+        }
+    }
+
+    elementos.modalBody.innerHTML = `
+        <img src="${meal.strMealThumb}" alt="${meal.strMeal}" class="modal__img">
+        <span class="modal__category">${meal.strCategory} | ${meal.strArea}</span>
+        <h2 class="modal__title">${meal.strMeal}</h2>
+        
+        <h3 class="modal__subtitle">Ingredientes</h3>
+        <div class="modal__ingredients">
+            ${ingredientes.map(i => `<div class="modal__ingredient">${i}</div>`).join('')}
+        </div>
+
+        <h3 class="modal__subtitle">Instrucciones de Preparación</h3>
+        <p class="modal__instructions">${meal.strInstructions}</p>
+        
+        <div style="margin-top: 2rem; display: flex; justify-content: center;">
+            <button class="btn btn--primary" onclick="agregarAlCarrito('${meal.idMeal}'); cerrarModal();">
+                Añadir al Carrito - $${(meal.idMeal / 1000).toFixed(2)}
+            </button>
+        </div>
+    `;
+}
+
+function cerrarModal() {
+    if (elementos.modal) {
+        elementos.modal.classList.add('hidden');
+        document.body.style.overflow = 'auto'; // Restaurar scroll
     }
 }
 

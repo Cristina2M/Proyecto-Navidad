@@ -123,16 +123,16 @@
             <!-- Header & Nav -->
             <header class="header">
                 <div class="header__container container">
-                    <a href="#" class="logo">
+                    <a href="#" class="logo" id="logo-nav">
                         <i class="fa-solid fa-snowflake logo__icon"></i>
                         Sabor<span class="logo__highlight">Navideño</span>
                     </a>
 
                     <nav class="nav nav__menu" id="nav-menu">
                         <ul class="nav__list">
-                            <li class="nav__item"><a href="#" class="nav__link active-link">Inicio</a></li>
-                            <li class="nav__item"><a href="#productos" class="nav__link">Productos</a></li>
-                            <li class="nav__item"><a href="#contacto" class="nav__link">Contacto</a></li>
+                            <li class="nav__item"><a href="#" class="nav__link active-link" id="nav-home">Inicio</a>
+                            </li>
+                            <li class="nav__item"><a href="#" class="nav__link" id="nav-products">Productos</a></li>
                         </ul>
                         <div class="nav__close" id="nav-close">
                             <i class="fa-solid fa-xmark"></i>
@@ -141,7 +141,7 @@
 
                     <div class="header__actions">
                         <span id="user-welcome" class="user-name">Hola, Chef</span>
-                        <button class="btn-icon" id="cart-toggle" aria-label="Ver carrito">
+                        <button class="btn-icon" id="cart-btn" aria-label="Ver carrito">
                             <i class="fa-solid fa-cart-shopping"></i>
                             <span class="cart-badge">0</span>
                         </button>
@@ -155,60 +155,90 @@
                 </div>
             </header>
 
-            <!-- Main Content -->
+            <!-- Main Content Area -->
             <main class="main">
-                <!-- Hero Section -->
-                <section class="hero">
-                    <div class="hero__content container">
-                        <h1 class="hero__title">Celebra con el mejor <br> <span class="text-gradient">Sabor
-                                Navideño</span>
-                        </h1>
-                        <p class="hero__description">Descubre nuestras recetas exclusivas y productos gourmet para hacer
-                            de
-                            tu cena una noche inolvidable.</p>
-                        <a href="#productos" class="btn btn--primary">Ver Catálogo <i
-                                class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                    <div class="hero__background"></div>
-                </section>
+                <!-- VIEW 1: PRODUCT CATALOG -->
+                <div id="catalog-view" class="view">
+                    <!-- Hero Section -->
+                    <section class="hero">
+                        <div class="hero__content container">
+                            <h1 class="hero__title">Celebra con el mejor <br> <span class="text-gradient">Sabor
+                                    Navideño</span></h1>
+                            <p class="hero__description">Descubre nuestras recetas exclusivas y productos gourmet para
+                                hacer de tu cena una noche inolvidable.</p>
+                            <a href="#" class="btn btn--primary" id="hero-cta">Ver Catálogo <i
+                                    class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                        <div class="hero__background"></div>
+                    </section>
 
-                <!-- Filters Section -->
-                <section class="filters container section">
-                    <div class="filters__header">
-                        <h2 class="section__title">Nuestros Platos</h2>
-                        <div class="filters__controls">
-                            <div class="filters__group">
-                                <button class="filter-btn active" data-category="all">Todos</button>
-                                <button class="filter-btn" data-category="Seafood">Mariscos</button>
-                                <button class="filter-btn" data-category="Pasta">Pasta</button>
-                                <button class="filter-btn" data-category="Dessert">Postres</button>
-                            </div>
+                    <!-- Filters Section -->
+                    <section class="filters container section">
+                        <div class="filters__header">
+                            <h2 class="section__title">Nuestros Platos</h2>
+                            <div class="filters__controls">
+                                <div class="filters__group">
+                                    <button class="filter-btn active" data-category="all">Todos</button>
+                                    <button class="filter-btn" data-category="Seafood">Mariscos</button>
+                                    <button class="filter-btn" data-category="Pasta">Pasta</button>
+                                    <button class="filter-btn" data-category="Dessert">Postres</button>
+                                </div>
 
-                            <div class="sort__group">
-                                <label for="sort-select" class="sort__label">Ordenar por:</label>
-                                <select id="sort-select" class="sort__select">
-                                    <option value="default">Recomendados</option>
-                                    <option value="price-asc">Precio: Menor a Mayor</option>
-                                    <option value="price-desc">Precio: Mayor a Menor</option>
-                                    <option value="name-az">Nombre: A-Z</option>
-                                </select>
+                                <div class="sort__group">
+                                    <label for="sort-select" class="sort__label">Ordenar por:</label>
+                                    <select id="sort-select" class="sort__select">
+                                        <option value="default">Recomendados</option>
+                                        <option value="price-asc">Precio: Menor a Mayor</option>
+                                        <option value="price-desc">Precio: Mayor a Menor</option>
+                                        <option value="name-az">Nombre: A-Z</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-                <!-- Products Grid -->
-                <section class="products container" id="productos">
-                    <div id="app" class="products__grid">
-                        <article class="card skeleton">
-                            <div class="skeleton__img"></div>
-                            <div class="skeleton__body">
-                                <div class="skeleton__text skeleton__text--title"></div>
-                                <div class="skeleton__text skeleton__text--price"></div>
+                    <!-- Products Grid -->
+                    <section class="products container" id="productos">
+                        <div id="app" class="products__grid">
+                            <!-- Skeleton logic handled by JS -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- VIEW 2: SHOPPING CART -->
+                <div id="cart-view" class="view hidden">
+                    <section class="cart-page container section">
+                        <h2 class="section__title">Tu Pedido Navideño</h2>
+
+                        <div class="cart-page__container">
+                            <div id="cart-full-list" class="cart-page__list">
+                                <!-- Items will be rendered here -->
                             </div>
-                        </article>
-                    </div>
-                </section>
+
+                            <div class="cart-page__summary summary">
+                                <h3 class="summary__title">Resumen del Pedido</h3>
+                                <div class="summary__data">
+                                    <div class="summary__line">
+                                        <span>Subtotal:</span>
+                                        <span id="summary-subtotal">$0.00</span>
+                                    </div>
+                                    <div class="summary__line">
+                                        <span>Gastos de envío:</span>
+                                        <span>Gratis</span>
+                                    </div>
+                                    <div class="summary__line summary__line--total">
+                                        <span>Total:</span>
+                                        <span id="summary-total">$0.00</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn--primary btn--block" id="checkout-final-btn">Finalizar
+                                    Compra</button>
+                                <button class="btn btn--outline btn--block" id="continue-shopping">Continuar
+                                    Comprando</button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
             </main>
 
             <!-- Footer -->
@@ -220,14 +250,22 @@
                         </a>
                         <p class="footer__description">Llevando la magia de la cocina a tu mesa desde 2025.</p>
                     </div>
-                    <div class="footer__social">
-                        <a href="#" class="footer__social-link"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#" class="footer__social-link"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="#" class="footer__social-link"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
                 </div>
                 <p class="footer__copy">&#169; 2026 Proyecto Navidad. Todos los derechos reservados.</p>
             </footer>
+
+            <!-- Modal de Detalle de Producto -->
+            <div id="product-modal" class="modal hidden">
+                <div class="modal__overlay" id="modal-overlay"></div>
+                <div class="modal__content">
+                    <button class="modal__close" id="modal-close">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <div id="modal-body">
+                        <!-- Contenido dinámico -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
