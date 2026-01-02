@@ -31,7 +31,7 @@
 - [x] **Cantidades**: Manejar incrementos de cantidad (0.5 pto)
 - [x] **Edición**: Modificar unidades o borrar ítems (0.5 pto)
 - [x] **Checkout**: Simulación de pedido
-- [ ] **Email**: Confirmación via EmailJS (1 pto)
+- [x] **Email**: Confirmación via EmailJS (1 pto)
 
 ## 5. Diseño CSS (Ana)
 - [x] **Metodología**: Usar BEM
