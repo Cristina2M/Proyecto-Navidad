@@ -125,6 +125,7 @@ img {
 .text-gradient {
     background: linear-gradient(90deg, var(--first-color), var(--first-color-alt));
     -webkit-background-clip: text;
+    background-clip: text;
     color: transparent;
 }
 
@@ -164,11 +165,90 @@ img {
     color: var(--first-color);
 }
 
-/* Navigation - Mobile First */
+/* Navigation */
 .nav__menu {
     position: fixed;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--body-color);
+    padding: 2rem 1.5rem 4rem;
+    box-shadow: 0 -1px 4px rgba(0, 0, 0, .15);
+    border-radius: 1.5rem 1.5rem 0 0;
+    transition: .3s;
+}
+
+/* Show menu */
+.show-menu {
     bottom: 0;
-    /* Or typical mobile drawer */
+}
+
+.nav__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+}
+
+.nav__link {
+    font-size: var(--h2-font-size);
+    color: var(--title-color);
+    font-weight: 600;
+}
+
+.nav__link:hover {
+    color: var(--first-color);
+}
+
+.nav__close {
+    position: absolute;
+    top: .75rem;
+    right: 1.5rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--title-color);
+}
+
+.nav__close:hover {
+    color: var(--first-color);
+}
+
+/* Header Actions */
+.header__actions {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.btn-icon {
+    border: none;
+    outline: none;
+    background: none;
+    font-size: 1.25rem;
+    color: var(--title-color);
+    cursor: pointer;
+    position: relative;
+    transition: .3s;
+}
+
+.btn-icon:hover {
+    color: var(--first-color);
+}
+
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background-color: var(--first-color);
+    color: #FFF;
+    font-size: .625rem;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
 }
 
 /* Card */
@@ -252,6 +332,90 @@ img {
         margin-left: auto;
         margin-right: auto;
     }
+
+    .section {
+        padding: 4rem 0 2rem;
+        /* Reduced from 7rem to reduce gap */
+    }
+
+    .nav {
+        height: var(--header-height);
+        /* Match header height to avoid overflow/misalignment */
+    }
+
+    .nav__toggle,
+    .nav__close {
+        display: none;
+    }
+
+    .nav__menu {
+        position: initial;
+        background-color: transparent;
+        box-shadow: none;
+        width: initial;
+        height: initial;
+        padding: 0;
+        border-radius: 0;
+        display: flex;
+        align-items: center;
+        /* Ensure vertical centering */
+    }
+
+    .nav__list {
+        display: flex;
+        flex-direction: row;
+        gap: 3rem;
+    }
+
+    .nav__link {
+        font-size: var(--normal-font-size);
+        text-transform: uppercase;
+        font-size: .9rem;
+        letter-spacing: .5px;
+    }
+
+    .filters__controls {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+    }
+}
+
+/* Filters */
+.filters__controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+    margin-top: 1rem;
+}
+
+.filter-btn {
+    border: 1px solid var(--text-color-light);
+    /* Borde sutil */
+    color: var(--title-color);
+    font-family: var(--body-font);
+    background-color: transparent;
+    padding: .5rem 1.75rem;
+    border-radius: 3rem;
+    /* Pill shape */
+    cursor: pointer;
+    font-weight: 500;
+    transition: .4s;
+}
+
+.filter-btn:hover {
+    border-color: var(--first-color);
+    color: var(--first-color);
+    transform: translateY(-2px);
+}
+
+.filter-btn.active {
+    background-color: var(--first-color);
+    color: #FFF;
+    border-color: var(--first-color);
+    box-shadow: 0 4px 12px hsla(var(--hue), 80%, 45%, .3);
 }
 
 /* =====================
