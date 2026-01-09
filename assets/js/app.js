@@ -2,7 +2,7 @@
  * @file app.js
  * @description Motor principal de la tienda "Sabor Navideño". Gestiona el catálogo, 
  * el carrito de compras, la autenticación y la integración con EmailJS.
- * @author Cristina & Sergio (Core Team)
+ * @author Cristina
  * @version 1.5.0
  */
 
